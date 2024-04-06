@@ -1,0 +1,118 @@
+components:
+  responses:
+    OK:
+      description: The request has succeeded.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SuccessfulResponse"
+
+    Accepted:
+      description: The request has succeeded.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AcceptedResponse"
+
+    BadRequestError:
+      description: The request has invalid data.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BadRequestResponse"
+          example:
+            message: Bad Request
+
+    UnauthorizedError:
+      description: The user could not be authenticated
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Unauthorized
+
+    ForbiddenError:
+      description: The user doesn't have access to the requested resource.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Forbidden
+
+    NotFoundError:
+      description: The requested resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Not Found
+
+    ConflictError:
+      description: The request conflicts with the current state of the server.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Conflict Error
+
+    InternalServerError:
+      description: An error ocurred while performing the request.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Internal Server Error
+
+    Timeout:
+      description: Server Timeout.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Timeout
+
+  schemas:
+    SuccessfulResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Ok
+        data:
+          type: object
+
+    AcceptedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Accepted
+
+    CreatedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Created
+        data:
+          type: object
+
+    BadRequestResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string

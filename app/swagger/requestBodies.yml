@@ -1,0 +1,19 @@
+components:
+  requestBodies:
+    images:
+      type: object
+      description: Array of images to upload.
+      properties:
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+
+    csv:
+      type: object
+      description: csv with information.
+      properties:
+        csv:
+          type: string
+          format: binary

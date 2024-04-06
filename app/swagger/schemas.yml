@@ -1,0 +1,23 @@
+components:
+  schemas:
+    dbProperties:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        updatedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+    count:
+      type: number
+      example: 1
+    limit:
+      type: number
+      example: 99
+    offset:
+      type: number
+      example: 0

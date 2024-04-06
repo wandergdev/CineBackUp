@@ -1,0 +1,330 @@
+components:
+  parameters:
+    empId:
+      name: empId
+      in: path
+      description: Employee ID of the required resource
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimun: 1
+        empId:
+    benId:
+      name: benId
+      in: path
+      description: Benefit ID of the required resource
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimun: 1
+    id:
+      name: id
+      in: path
+      description: ID of the required resource.
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+    limit:
+      name: limit
+      in: query
+      description: Number of items to return.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 99
+    offset:
+      name: offset
+      in: query
+      description: Number of items to skip before starting to collect the result set.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    order:
+      name: order
+      in: query
+      description: |
+        Defines the order of the result set by a defined property, first value can be any table property, second value must be "ASC" or "DESC".
+
+        ---
+
+        Query schema  
+        + **Order using a single parameter:** [["propertyA","ASC"]]
+        + **Order using multiple parameters:** [["propertyA","ASC"],["propertyB","DESC"]]
+      required: false
+      schema:
+        type: string
+        pattern: '^\[(\["\w+","(DESC|ASC)"\](,|\]$))+$'
+      examples:
+        orderNone:
+          summary: None
+          value:
+        orderByIdDesc:
+          summary: Order in "DESC" order
+          value: '[["A","DESC"]]'
+        orderByIdASC:
+          summary: Order in "ASC" order
+          value: '[[A","ASC"]]'
+        multipleOrder:
+          summary: Order by multiple parameters
+          value: '[["A","DESC"],["B","ASC"]]'
+          description: Order of importance is determined from left to right in the query string, in this example result gets ordered first by "A" in "DESC" then by "B" in "ASC" order.
+    include:
+      name: include
+      in: query
+      description: |
+        Name of the model to include with the result set. Keep in mind that, in order to know which tables are related with the result set you must search for parameters ending with "...Id", for example: "employeeId", this way we know we can use "employee" as an inlcude parameter.
+
+        ---
+
+        Query schema  
+        + **Include a single model:** ["modelA"]
+        + **Include multiple models:** ["modelA","modelB"]
+        + **Include a nested model:** [&#123;"modelA": ["modelB"]&#125;]
+        + **Include complex nested models:** [{"modelA": [{"modelB": ["modelC"]}]}]
+        + **Include a single model with where:** [{"model": "modelA", "where":{"parameterA": "lorem"}}]
+      required: false
+      schema:
+        type: string
+        pattern: '^\[(("\w+"(,|]$))+|(((\[{"\w+":\s)|({"\w+":\s))+(\["\w+"(]})+)(,|]$)))+$'
+      examples:
+        includeNone:
+          summary: None
+          value:
+        includeEmployee:
+          summary: Include a single model
+          value: '["A"]'
+        includeMultipleParameters:
+          summary: Include multiple models
+          value: '["A","B"]'
+        includeNestedModel:
+          summary: Include a nested model
+          value: '[{"A": ["B"]}]'
+          description: In this example we're including "A" first and then "B" from the included "A" data.
+        includeComplexModel:
+          summary: Include complex nested models
+          value: '[{"A": [{"B": [{"C": ["D"]}]}]}]'
+          description: Is not recommended to fetch deep nested objects like this, but sometimes it could be neccesary.
+        includeCombination:
+          summary: Include models by combinating methods
+          value: '["A",{"B": ["C"]}]'
+          description: Includes "A" and "B" model into result set, then includes "C" model into "B" resutl set, this can be as complex as you want.
+        includeWithWhere:
+          summary: Include model with where filter
+          value: '[{"model": "A", "where":{"id": 1}}]'
+          description: Includes model A where id is equal to 1
+    where:
+      name: where
+      in: query
+      description: |
+        Allows to filter result set with the specific requested parameters, you can use a any parameter or specific operators.
+
+        ---
+
+        Query schema  
+        + **Filer by a single parameter:** [{"parameterA": "lorem"}]
+        + **Filter using multiple parameters:** [{"parameterA": "lorem"},{"parameterB": "ipsum"}]
+        + **Filter by using operators with single parameter:** [{"parameterA": {"$operator": "lorem"}}]
+        + **Filter by using operators with array ($or & $and):** [{"parameterA": {"$operator": ["1", "2", "3"]}}]
+      required: false
+      schema:
+        type: string
+        pattern: '^\[({"\$(and|or)":\s\[)?(({"\w+":\s"\w+"}(,|]))+|({"\w+":\s{"\$\w+":\s(("\w+")|(\[("\w+"(,|]))+)|(true|false|null))}}(,|]))+|({"\w+":\s{"\$(and|or)":\s\[({"\$\w+":\s(("\w+")|(\[("\w+"(,|]))+)|(true|false|null))}(,|]}}]))+))+(}])?$'
+      examples:
+        whereNone:
+          summary: None
+          value:
+        whereSingle:
+          summary: Filter a single parameter
+          value: '[{"A": "1"}]'
+          description: |
+            <font color="brick">String is case sensitive.</font>  
+            Filters result set that literally has the "1" value in the "A" parameter, filtering can be made using number, bool or string.
+        whereMultiple:
+          summary: Filter multiple parameters
+          value: '[{"A": "1"},{"B": "true"},{"C": "lorem"}]'
+          description: |
+            <font color="brick">String is case sensitive.</font>  
+            Filters result set that literally has the required values in the requested parameters, filtering can be made using number, bool or string.  
+            This executes as an AND operator.
+        whereMultiplOperator:
+          summary: Filter multiple parameters with operators
+          value: '[{"A": "1"},{"B": {"$between": ["1","6"]}},{"C": "lorem"}]'
+          description: |
+            <font color="brick">String is case sensitive.</font>  
+            Filters result set that literally has the required values in the requested parameters, filtering can be made using number, bool or string.  
+            This executes as an AND operator.
+        whereAnd:
+          summary: Filter multiple parameters using AND operator
+          value: '[{"$and": [{"A": "1"},{"B": {"$operator": "lorem"}}]}]'
+          description: Filters result set using an AND operator in the desired parameters.
+        whereOr:
+          summary: Filter multiple parameters using OR operator
+          value: '[{"$or": [{"A": "1"},{"B": {"$operator": "lorem"}}]}]'
+          description: Filters result set using an OR operator in the desired parameters.
+        whereEq:
+          summary: Operator - $eq
+          value: '[{"A": {"$eq": "1"}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is equal to the "$eq" operator value.
+        whereNe:
+          summary: Operator - $ne
+          value: '[{"A": {"$ne": "1"}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is not equal to the "$ne" operator value.
+        whereGt:
+          summary: Operator - $gt
+          value: '[{"A": {"$gt": "1"}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is greater to the "$gt" operator value.
+        whereGte:
+          summary: Operator - $gte
+          value: '[{"A": {"$gte": "1"}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is greater or equal to the "$gte" operator value.
+        whereLt:
+          summary: Operator - $lt
+          value: '[{"A": {"$lt": "1"}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is lower to the "$lt" operator value.
+        whereLte:
+          summary: Operator - $lte
+          value: '[{"A": {"$lte": "1"}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is lower or equal to the "$lte" operator value.
+        whereBetween:
+          summary: Operator - $between
+          value: '[{"A": {"$between": ["1","9"]}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is bewteen the required operator values, both arguments are inclusive.
+        whereNotBetween:
+          summary: Operator - $notBetween
+          value: '[{"A": {"$notBetween": ["1","9"]}}]'
+          description: |
+            <font color="brick">Use only with number & date type parameters.</font>  
+            Tests whether "A" parameter value is not bewteen the required operator values, both arguments are inclusive.
+        whereIn:
+          summary: Operator - $in
+          value: '[{"A": {"$in": ["1","5","9"]}}]'
+          description: |
+            <font color="brick">Use only with number type parameters.</font>  
+            Tests whether "A" parameter value is equal to one of the "$in" operator values.
+        whereNotIn:
+          summary: Operator - $notIn
+          value: '[{"A": {"$notIn": ["1","5","9"]}}]'
+          description: |
+            <font color="brick">Use only with number type parameters.</font>  
+            Tests whether "A" parameter value is not equal to one of the "$notIn" operator values.
+        whereIs:
+          summary: Operator - $is
+          value: '[{"A": {"$is": true}}]'
+          description: |
+            <font color="brick">Use only with bool type parameters.</font>  
+            Tests whether "A" parameter value is equal to the "$is" operator value.
+        whereNot:
+          summary: Operator - $not
+          value: '[{"A": {"$not": true}}]'
+          description: |
+            <font color="brick">Use only with bool type parameters.</font>  
+            Tests whether "A" parameter value is not equal to the "$is" operator value.
+        whereLike:
+          summary: Operator - $like
+          value: '[{"A": {"$like": "lorem"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case sensitive.</font>  
+            Tests whether "A" parameter value literally matches with the "$like" operator value.  
+            This is the same as doing [{"A": "string"}]
+        whereILike:
+          summary: Operator - $iLike
+          value: '[{"A": {"$iLike": "lorem"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case insensitive.</font>  
+            Tests whether "A" parameter value matches with the "$iLike" operator value.
+        whereNotLike:
+          summary: Operator - $notLike
+          value: '[{"A": {"$notLike": "lorem"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case sensitive.</font>  
+            Tests whether "A" parameter value doesn't literally matches with the "$notLike" operator value.
+        whereNotILike:
+          summary: Operator - $notILike
+          value: '[{"A": {"$notILike": "lorem"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case insensitive.</font>  
+            Tests whether "A" parameter value doesn't matches with the "$notILike" operator value.
+        whereStartsWith:
+          summary: Operator - $startsWith
+          value: '[{"A": {"$startsWith": "lorem"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case sensitive.</font>  
+            Tests whether "A" parameter value begins with the "$startsWith" operator value.
+        whereEndsWith:
+          summary: Operator - $endsWith
+          value: '[{"A": {"$endsWith": "lorem"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case sensitive.</font>  
+            Tests whether "A" parameter value ends with the "$endsWith" operator value.
+        whereSubstring:
+          summary: Operator - $substring
+          value: '[{"A": {"$substring": "lorem"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case sensitive.</font>  
+            Tests whether "A" parameter value matches part of the "$substring" operator value.
+        whereAndParameter:
+          summary: Operator - $and
+          value: '[{"A": {"$and": [{"$operator": "lorem"},{"$operator": "1"}]}}]'
+          description: Filters result set using an AND operation in a specific parameter by testing if that value meets the desired requirements.
+        whereOrParameter:
+          summary: Operator - $or
+          value: '[{"A": {"$or": [{"$operator": "lorem"},{"$operator": "1"}]}}]'
+          description: Filters result set using an AND operation in a specific parameter by testing if that value meets the desired requirements.
+        whereRegexp:
+          summary: Operator - $regexp
+          value: '[{"A": {"$regexp": "lo"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case sensitive.</font>  
+            Tests whether "A" parameter value literally matches with the "$regexp" operator value.
+        whereIRegexp:
+          summary: Operator - $iRegexp
+          value: '[{"A": {"$iRegexp": "lo"}}]'
+          description: |
+            <font color="brick">Use only with string type parameters, case insensitive.</font>  
+            Tests whether "A" parameter value matches with the "$iRegexp" operator value.
+    attributes:
+      name: attributes
+      in: query
+      description: |
+        Allows to exclude specific parameters from the result set.
+
+        ----
+
+        Query schema  
+        + **Exclude a single parameter:** {"exclude": ["parameterA"]}
+        + **Exclude multiple parameters:** {"exclude": ["parameterA", "parameterB"]}
+      required: false
+      schema:
+        type: string
+        pattern: '^\{"exclude":\s\[("\w+"(,|]}$))+$'
+      examples:
+        orderNone:
+          summary: None
+          value:
+        orderByIdDesc:
+          summary: Exclude a single parameter
+          value: '{"exclude": ["parameterA"]}'
+        orderByIdASC:
+          summary: Exclude multiple parameters
+          value: '{"exclude": ["parameterA","parameterB","parameterC"]}'

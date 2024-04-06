@@ -1,0 +1,500 @@
+{
+  "tables": {
+    "file": {
+      "tableName": "file",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "type": {
+          "allowNull": false,
+          "field": "type",
+          "seqType": "Sequelize.STRING"
+        },
+        "fileName": {
+          "allowNull": false,
+          "field": "fileName",
+          "seqType": "Sequelize.STRING"
+        },
+        "path": {
+          "allowNull": false,
+          "field": "path",
+          "seqType": "Sequelize.STRING"
+        },
+        "isUploaded": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isUploaded",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "jwtblacklist": {
+      "tableName": "jwtblacklist",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "token": {
+          "allowNull": false,
+          "field": "token",
+          "seqType": "Sequelize.STRING(512)"
+        },
+        "expires": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "expires",
+          "seqType": "Sequelize.DATE"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "movie": {
+      "tableName": "movie",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "name": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "name",
+          "seqType": "Sequelize.STRING"
+        },
+        "director": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "director",
+          "seqType": "Sequelize.STRING"
+        },
+        "duration": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": 0
+          },
+          "field": "duration",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "policy": {
+      "tableName": "policy",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "name": {
+          "allowNull": false,
+          "field": "name",
+          "seqType": "Sequelize.STRING"
+        },
+        "description": {
+          "allowNull": false,
+          "field": "description",
+          "seqType": "Sequelize.STRING"
+        },
+        "permission": {
+          "allowNull": false,
+          "field": "permission",
+          "seqType": "Sequelize.JSON"
+        },
+        "isSystemManaged": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isSystemManaged",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "profile": {
+      "tableName": "profile",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "time_zone": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "time_zone",
+          "seqType": "Sequelize.STRING"
+        },
+        "locale": {
+          "allowNull": true,
+          "field": "locale",
+          "seqType": "Sequelize.ENUM('en', 'es')"
+        },
+        "userId": {
+          "field": "userId",
+          "name": "userId",
+          "allowNull": true,
+          "references": {
+            "model": "user",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "region": {
+      "tableName": "region",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "name": {
+          "allowNull": false,
+          "field": "name",
+          "seqType": "Sequelize.STRING"
+        },
+        "regionCodeAlphaThree": {
+          "allowNull": false,
+          "field": "regionCodeAlphaThree",
+          "seqType": "Sequelize.STRING"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "role": {
+      "tableName": "role",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "name": {
+          "allowNull": false,
+          "field": "name",
+          "seqType": "Sequelize.STRING"
+        },
+        "label": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": ""
+          },
+          "field": "label",
+          "seqType": "Sequelize.STRING"
+        },
+        "description": {
+          "allowNull": false,
+          "field": "description",
+          "seqType": "Sequelize.STRING"
+        },
+        "isDefault": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isDefault",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "isPrivate": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isPrivate",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "role_policy": {
+      "tableName": "role_policy",
+      "schema": {
+        "roleId": {
+          "allowNull": false,
+          "field": "roleId",
+          "name": "roleId",
+          "references": {
+            "model": "role",
+            "key": "id"
+          },
+          "onDelete": "CASCADE",
+          "onUpdate": "CASCADE",
+          "primaryKey": true,
+          "seqType": "Sequelize.INTEGER"
+        },
+        "policyId": {
+          "allowNull": false,
+          "field": "policyId",
+          "name": "policyId",
+          "references": {
+            "model": "policy",
+            "key": "id"
+          },
+          "onDelete": "CASCADE",
+          "onUpdate": "CASCADE",
+          "primaryKey": true,
+          "seqType": "Sequelize.INTEGER"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "user": {
+      "tableName": "user",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "name": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "name",
+          "seqType": "Sequelize.STRING"
+        },
+        "firstName": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "firstName",
+          "seqType": "Sequelize.STRING"
+        },
+        "lastName": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "lastName",
+          "seqType": "Sequelize.STRING"
+        },
+        "uid_azure": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": null
+          },
+          "field": "uid_azure",
+          "seqType": "Sequelize.STRING"
+        },
+        "isActive": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isActive",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "isEmailConfirmed": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isEmailConfirmed",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "email": {
+          "allowNull": false,
+          "unique": true,
+          "validate": {
+            "isEmail": true
+          },
+          "field": "email",
+          "seqType": "Sequelize.STRING"
+        },
+        "password": {
+          "allowNull": false,
+          "validate": {
+            "isLength": {
+              "min": 8
+            }
+          },
+          "field": "password",
+          "seqType": "Sequelize.STRING"
+        },
+        "authType": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": "email"
+          },
+          "field": "authType",
+          "seqType": "Sequelize.ENUM('email', 'microsoft', 'google')"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "user_role": {
+      "tableName": "user_role",
+      "schema": {
+        "userId": {
+          "allowNull": false,
+          "field": "userId",
+          "name": "userId",
+          "primaryKey": true,
+          "references": {
+            "model": "user",
+            "key": "id"
+          },
+          "onDelete": "CASCADE",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "roleId": {
+          "allowNull": false,
+          "field": "roleId",
+          "name": "roleId",
+          "references": {
+            "model": "role",
+            "key": "id"
+          },
+          "onDelete": "CASCADE",
+          "onUpdate": "CASCADE",
+          "primaryKey": true,
+          "seqType": "Sequelize.INTEGER"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    }
+  },
+  "revision": "20240128121044"
+}
