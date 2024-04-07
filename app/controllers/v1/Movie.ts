@@ -1,12 +1,11 @@
-import { ModelController } from "@/libraries/ModelController";
 import { Movie } from "@/db/models/Movie/model/Movie";
-import { Router } from "express";
+import { ModelController } from "@/libraries/ModelController";
+import { stripNestedObjects, validateJWT } from "@/policies/General";
 import {
-  validateJWT,
-  filterOwner,
-  appendUser,
-  stripNestedObjects,
-} from "@/policies/General";
+  getMovieListFromApi,
+  mapMovieToDatabase,
+} from "@/services/MovieService";
+import { Router } from "express";
 
 export class MovieController extends ModelController<Movie> {
   constructor() {
@@ -18,6 +17,18 @@ export class MovieController extends ModelController<Movie> {
   routes(): Router {
     this.router.get("/", validateJWT("access"), (req, res) =>
       this.handleFindAll(req, res),
+    );
+    this.router.get(
+      "/from-movie-api/",
+      /*  validateJWT("access"), */ (req, res) => getMovieListFromApi(req, res),
+    );
+    this.router.get(
+      "/map-to-db/",
+      /*  validateJWT("access"), */ (req, res) => mapMovieToDatabase(req, res),
+    );
+    this.router.get(
+      "/movie-poster/",
+      /*  validateJWT("access"), */ (req, res) => mapMovieToDatabase(req, res),
     );
     this.router.get("/:id", validateJWT("access"), (req, res) =>
       this.handleFindOne(req, res),

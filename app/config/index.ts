@@ -142,6 +142,14 @@ export const config = {
     password: process.env.SWAGGER_PASSWORD || "password",
     hasAuth: process.env.SWAGGER_HAS_AUTH || false,
   },
+  movie: {
+    THE_MOVIE_DB_TOKEN: process.env.THE_MOVIE_DB_TOKEN,
+    THE_MOVIE_DB_POSTER_URL:
+      process.env.THE_MOVIE_DB_POSTER_URL || "http://image.tmdb.org/t/p/w500/",
+    THE_MOVIE_DB_URL:
+      process.env.THE_MOVIE_DB_URL ||
+      "https://api.themoviedb.org/3/search/movie?",
+  },
 };
 
 let portString = "";
