@@ -24,11 +24,7 @@ export const createDefaultPolicies = async () => {
       "role.*.*": true,
       "self-users": true,
       "user.*.r": true,
-      "group_members.*.*": true,
-      "group.*.*": true,
-      "audience.*.*": true,
-      "annouccement.*.*": true,
-      "icons.*.*": true,
+      "movie.*.*": true,
     },
   });
 
@@ -42,6 +38,7 @@ export const createDefaultPolicies = async () => {
       "region.*.r": true,
       "self-users": true,
       "user.*.r": true,
+      "movie.*.r.": true,
     },
   });
 

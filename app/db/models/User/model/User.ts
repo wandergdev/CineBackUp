@@ -8,11 +8,9 @@ import {
   BeforeCreate,
   BeforeDestroy,
   BeforeUpdate,
-  BelongsTo,
   BelongsToMany,
   Column,
   DataType,
-  ForeignKey,
   HasMany,
   HasOne,
   Table,
@@ -21,6 +19,7 @@ import { Profile } from "../../Profile/model/Profile";
 import { Role } from "../../Role/model/Role";
 import { UserRole } from "../../UserRole/model/UserRole";
 import { AuthType } from "../types/AuthType";
+import { Sala } from "../../Sala/model/Sala";
 
 @Table({
   tableName: "user",
@@ -113,6 +112,12 @@ export class User extends BaseModel<User> {
     onDelete: "CASCADE",
   })
   userRoles: UserRole[];
+
+  @HasMany(() => Sala, {
+    hooks: true,
+    onDelete: "NO ACTION",
+  })
+  Sala: Sala[];
 
   @BelongsToMany(() => Role, {
     through: {

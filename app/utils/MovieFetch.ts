@@ -3,7 +3,7 @@ import { config } from "@/config";
 const myHeaders = new Headers();
 myHeaders.append("Authorization", `Bearer ${config.movie.THE_MOVIE_DB_TOKEN}`);
 
-const requestOptions = {
+const requestOptions: RequestInit = {
   method: "GET",
   headers: myHeaders,
   redirect: "follow",
@@ -13,7 +13,7 @@ const requestOptions = {
 export const fetchMovieData = async (name: string) => {
   try {
     // Await the fetch call to resolve and get the response
-    const finalUrl = `${config.movie.THE_MOVIE_DB_URL}query=${name}&language=es-ES`;
+    const finalUrl = `${config.movie.THE_MOVIE_DB_URL}?query=${name}&language=es-ES`;
     const response = await fetch(finalUrl, requestOptions);
     // Await the method to read the response body and finish
     const result = await response.json();

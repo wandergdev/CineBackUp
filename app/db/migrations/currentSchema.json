@@ -1,5 +1,83 @@
 {
   "tables": {
+    "comprartaquilla": {
+      "tableName": "comprartaquilla",
+      "schema": {
+        "id": {
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "userId": {
+          "allowNull": false,
+          "field": "userId",
+          "name": "userId",
+          "references": {
+            "model": "user",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "funcionId": {
+          "allowNull": false,
+          "field": "funcionId",
+          "name": "funcionId",
+          "references": {
+            "model": "funcion",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "cantidadTaquillas": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": 1
+          },
+          "field": "cantidadTaquillas",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "tipoTaquilla": {
+          "allowNull": false,
+          "field": "tipoTaquilla",
+          "seqType": "Sequelize.STRING"
+        },
+        "costoTotal": {
+          "allowNull": false,
+          "field": "costoTotal",
+          "seqType": "Sequelize.FLOAT"
+        },
+        "fechaHoraCompra": {
+          "defaultValue": {
+            "internal": true,
+            "value": "Sequelize.NOW"
+          },
+          "allowNull": true,
+          "field": "fechaHoraCompra",
+          "seqType": "Sequelize.DATE"
+        },
+        "estadoTransaccion": {
+          "allowNull": false,
+          "field": "estadoTransaccion",
+          "seqType": "Sequelize.STRING"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
     "file": {
       "tableName": "file",
       "schema": {
@@ -32,6 +110,70 @@
           },
           "field": "isUploaded",
           "seqType": "Sequelize.BOOLEAN"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "funcion": {
+      "tableName": "funcion",
+      "schema": {
+        "id": {
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "movieId": {
+          "allowNull": false,
+          "field": "movieId",
+          "name": "movieId",
+          "references": {
+            "model": "movie",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "duration": {
+          "allowNull": true,
+          "defaultValue": {
+            "value": 0
+          },
+          "field": "duration",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "salaId": {
+          "allowNull": false,
+          "field": "salaId",
+          "name": "salaId",
+          "references": {
+            "model": "sala",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "startTime": {
+          "allowNull": false,
+          "field": "startTime",
+          "seqType": "Sequelize.TIME"
+        },
+        "status": {
+          "allowNull": false,
+          "field": "status",
+          "seqType": "Sequelize.STRING"
         },
         "createdAt": {
           "allowNull": false,
@@ -100,20 +242,42 @@
           "field": "name",
           "seqType": "Sequelize.STRING"
         },
-        "director": {
-          "allowNull": true,
-          "defaultValue": {
-            "value": null
-          },
-          "field": "director",
-          "seqType": "Sequelize.STRING"
-        },
         "duration": {
           "allowNull": true,
           "defaultValue": {
             "value": 0
           },
           "field": "duration",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "fecha_lanzamiento": {
+          "allowNull": true,
+          "field": "fecha_lanzamiento",
+          "seqType": "Sequelize.DATE"
+        },
+        "poster_path": {
+          "allowNull": true,
+          "field": "poster_path",
+          "seqType": "Sequelize.STRING"
+        },
+        "description": {
+          "allowNull": false,
+          "field": "description",
+          "seqType": "Sequelize.TEXT"
+        },
+        "genero": {
+          "allowNull": false,
+          "field": "genero",
+          "seqType": "Sequelize.ARRAY(Sequelize.STRING)"
+        },
+        "rating": {
+          "allowNull": false,
+          "field": "rating",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "external_id": {
+          "allowNull": false,
+          "field": "external_id",
           "seqType": "Sequelize.INTEGER"
         },
         "createdAt": {
@@ -161,6 +325,51 @@
           },
           "field": "isSystemManaged",
           "seqType": "Sequelize.BOOLEAN"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
+    "preciotaquillas": {
+      "tableName": "preciotaquillas",
+      "schema": {
+        "id": {
+          "allowNull": false,
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "name": {
+          "allowNull": false,
+          "field": "name",
+          "seqType": "Sequelize.STRING"
+        },
+        "precio": {
+          "allowNull": false,
+          "field": "precio",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "userId": {
+          "field": "userId",
+          "name": "userId",
+          "allowNull": true,
+          "references": {
+            "model": "user",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
         },
         "createdAt": {
           "allowNull": false,
@@ -355,6 +564,55 @@
       },
       "indexes": []
     },
+    "sala": {
+      "tableName": "sala",
+      "schema": {
+        "id": {
+          "primaryKey": true,
+          "autoIncrement": true,
+          "field": "id",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "name": {
+          "allowNull": false,
+          "field": "name",
+          "seqType": "Sequelize.STRING"
+        },
+        "capacity": {
+          "allowNull": false,
+          "field": "capacity",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "type": {
+          "allowNull": false,
+          "field": "type",
+          "seqType": "Sequelize.STRING"
+        },
+        "createdBy": {
+          "field": "createdBy",
+          "name": "createdBy",
+          "allowNull": true,
+          "references": {
+            "model": "user",
+            "key": "id"
+          },
+          "onDelete": "NO ACTION",
+          "onUpdate": "CASCADE",
+          "seqType": "Sequelize.INTEGER"
+        },
+        "createdAt": {
+          "allowNull": false,
+          "field": "createdAt",
+          "seqType": "Sequelize.DATE"
+        },
+        "updatedAt": {
+          "allowNull": false,
+          "field": "updatedAt",
+          "seqType": "Sequelize.DATE"
+        }
+      },
+      "indexes": []
+    },
     "user": {
       "tableName": "user",
       "schema": {
@@ -496,5 +754,5 @@
       "indexes": []
     }
   },
-  "revision": "20240128121044"
+  "revision": "20240427213019"
 }

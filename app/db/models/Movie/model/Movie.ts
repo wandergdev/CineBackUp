@@ -1,5 +1,5 @@
 import { BaseModel } from "@/libraries/BaseModel";
-import { Column, DataType, Table } from "sequelize-typescript";
+import { AllowNull, Column, DataType, Table } from "sequelize-typescript";
 
 @Table({
   tableName: "movie",
@@ -20,6 +20,12 @@ export class Movie extends BaseModel<Movie> {
   duration: number;
 
   @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  fecha_lanzamiento: Date;
+
+  @Column({
     type: DataType.STRING,
     allowNull: true,
   })
@@ -35,7 +41,7 @@ export class Movie extends BaseModel<Movie> {
     type: DataType.ARRAY(DataType.STRING),
     allowNull: false,
   })
-  gener: string[];
+  genero: string[];
 
   @Column({
     type: DataType.INTEGER,

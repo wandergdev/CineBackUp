@@ -1,10 +1,12 @@
 import { Movie } from "@/db/models/Movie/model/Movie";
 import { ModelController } from "@/libraries/ModelController";
+import { validateBody } from "@/libraries/Validator";
 import { stripNestedObjects, validateJWT } from "@/policies/General";
 import {
   getMovieListFromApi,
   mapMovieToDatabase,
 } from "@/services/MovieService";
+import { MovieSchema } from "@/validators/Movie";
 import { Router } from "express";
 
 export class MovieController extends ModelController<Movie> {
@@ -36,7 +38,7 @@ export class MovieController extends ModelController<Movie> {
     this.router.post(
       "/",
       validateJWT("access"),
-      stripNestedObjects(),
+      validateBody(MovieSchema),
       (req, res) => this.handleCreate(req, res),
     );
     this.router.put(

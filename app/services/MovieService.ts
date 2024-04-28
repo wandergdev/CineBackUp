@@ -23,16 +23,17 @@ export const mapMovieToDatabase = async (req: Request, res: Response) => {
     if (alreadyExist)
       return Controller.conflict(
         res,
-        "Esta pelicula ya esta registrada en tu sistema",
+        "Esta película ya esta registrada en tu sistema",
       );
 
     function mapToMovie(movieData: any) {
       return {
         name: movieData.title,
+        fecha_lanzamiento: movieData.release_date,
         duration: movieData.runtime,
         poster_path: movieData.poster_path,
         description: movieData.overview,
-        gener: movieData.genres.map((genre: any) => genre.name),
+        genero: movieData.genres.map((genre: any) => genre.name),
         rating: Math.round(movieData.vote_average),
         external_id: movieData.id,
       };

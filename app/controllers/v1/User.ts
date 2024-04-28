@@ -7,14 +7,14 @@ import {
   parseWhere,
 } from "@/libraries/ModelController";
 import { validateBody } from "@/libraries/Validator";
-import { AuthMiddleware, hasCustomPermission } from "@/policies/Authorization";
+import { hasCustomPermission } from "@/policies/Authorization";
 import {
   verifyAdminPermission,
   isSelfUser,
   validateJWT,
 } from "@/policies/General";
 
-import { UserSchema } from "@/validators/User";
+import { UserSchema } from "../../validators/User";
 import { Request, Response, Router } from "express";
 
 export class UserController extends ModelController<User> {
@@ -157,7 +157,7 @@ export class UserController extends ModelController<User> {
      */
     this.router.get(
       "/getall",
-      //validateJWT("access"),
+      validateJWT("access"),
       //AuthMiddleware(),
       //verifyAdminPermission(),
       (req, res) => this.handleFindAll(req, res),
@@ -200,10 +200,17 @@ export class UserController extends ModelController<User> {
      */
     this.router.get(
       "/:id",
-      //validateJWT("access"),
+      validateJWT("access"),
       //AuthMiddleware(),
       //isSelfUser(),
       (req, res) => this.handleFindOne(req, res),
+    );
+
+    this.router.post(
+      "/",
+      validateJWT("access"),
+      validateBody(UserSchema),
+      (req, res) => this.handleCreate(req, res),
     );
 
     /**
@@ -243,9 +250,9 @@ export class UserController extends ModelController<User> {
      */
     this.router.put(
       "/:id",
-      //validateJWT("access"),
+      validateJWT("access"),
       //AuthMiddleware(),
-      //validateBody(UserSchema),
+      validateBody(UserSchema),
       (req, res) => this.handleUpdate(req, res),
     ); // only admin can edit user
 
@@ -276,7 +283,7 @@ export class UserController extends ModelController<User> {
      */
     this.router.delete(
       "/:id",
-      //validateJWT("access"),
+      validateJWT("access"),
       //AuthMiddleware(),
       (req, res) => this.handleDelete(req, res),
     ); // only admin can delete user

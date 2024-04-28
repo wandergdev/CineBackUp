@@ -429,6 +429,7 @@ export class ModelController<T extends Model> extends Controller {
     try {
       const values = parseBody(req);
       const result = await this.create(values);
+      console.log(values);
       return Controller.created(res, result);
     } catch (err) {
       handleServerError(err, res);
