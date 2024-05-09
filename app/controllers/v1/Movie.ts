@@ -17,8 +17,11 @@ export class MovieController extends ModelController<Movie> {
   }
 
   routes(): Router {
-    this.router.get("/", validateJWT("access"), (req, res) =>
-      this.handleFindAll(req, res),
+    this.router.get(
+      "/",
+      /*validateJWT("access"),*/ (req, res) => {
+        this.handleFindAll(req, res);
+      },
     );
     this.router.get(
       "/from-movie-api/",

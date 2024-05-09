@@ -14,6 +14,7 @@ import morgan from "morgan";
 import path from "path";
 import favicon from "serve-favicon";
 import swaggerUi from "swagger-ui-express";
+import cors from "cors";
 
 export const app = express();
 export const server = createServer(app);
@@ -88,19 +89,22 @@ app.set("view engine", "ejs");
 // app.use(passport.initialize());
 
 // Enable CORS
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, PUT, PATCH, POST, DELETE");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  );
-  res.header(
-    "Access-Control-Expose-Headers",
-    "Content-Count, Content-Disposition, Content-Type",
-  );
-  next();
-});
+// Configuración de CORS para aceptar solicitudes de tu frontend
+app.use(
+  cors({
+    origin: "http://localhost:3000", // URL de tu frontend
+    credentials: true, // Permitir el envío de cookies y credenciales de autenticación
+    methods: ["GET", "PUT", "PATCH", "POST", "DELETE"], // Métodos HTTP permitidos
+    allowedHeaders: [
+      "Origin",
+      "X-Requested-With",
+      "Content-Type",
+      "Accept",
+      "Authorization",
+    ], // Cabeceras permitidas
+    exposedHeaders: ["Content-Count", "Content-Disposition", "Content-Type"], // Cabeceras expuestas
+  }),
+);
 
 routes(app);
 
