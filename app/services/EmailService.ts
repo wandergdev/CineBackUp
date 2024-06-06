@@ -10,15 +10,26 @@ class EmailService {
   mailer: nodemailer.Transporter;
 
   constructor() {
+    // Configuración del transportador de nodemailer
     this.mailer = nodemailer.createTransport({
-      pool: true,
       host: config.email.host,
       port: config.email.port,
-      secure: config.email.secure,
-      auth: config.email.auth,
+      secure: config.email.secure, // true for 465, false for other ports
+      auth: {
+        user: config.email.auth.user, // generated ethereal user
+        pass: config.email.auth.pass, // generated ethereal password
+      },
     });
   }
 
+  /**
+   * Envía un correo electrónico utilizando nodemailer.
+   * @param email - Dirección de correo del destinatario.
+   * @param subject - Asunto del correo.
+   * @param html - Contenido HTML del correo.
+   * @param attachments - Archivos adjuntos del correo.
+   * @returns Una promesa con el resultado del envío.
+   */
   private send(
     email: string,
     subject: string,
@@ -42,6 +53,11 @@ class EmailService {
     });
   }
 
+  /**
+   * Compila una plantilla EJS con el contexto proporcionado.
+   * @param context - Datos para renderizar la plantilla.
+   * @returns Una promesa con el contenido HTML renderizado.
+   */
   private compileTemplate(context: any): Promise<string> {
     return new Promise((resolve, reject) => {
       ejs.renderFile(
@@ -55,6 +71,11 @@ class EmailService {
     });
   }
 
+  /**
+   * Envía un correo electrónico con los datos proporcionados.
+   * @param emailData - Datos del correo electrónico (dirección, asunto, plantilla, contexto, adjuntos).
+   * @returns Una promesa con el resultado del envío.
+   */
   async sendEmail(emailData: EmailData): Promise<any> {
     if (emailData.context == null) emailData.context = {};
     emailData.context.page = emailData.page;
@@ -66,7 +87,12 @@ class EmailService {
 
     emailData.context.__ = t.__;
 
-    // Translate subject
+    // Asegúrate de pasar el email, name y url al contexto
+    emailData.context.email = emailData.email;
+    emailData.context.name = emailData.context.name || emailData.email;
+    emailData.context.url = emailData.context.url || "";
+
+    // Traducir asunto
     emailData.subject = t.__(emailData.subject);
 
     const html = await this.compileTemplate(emailData.context);

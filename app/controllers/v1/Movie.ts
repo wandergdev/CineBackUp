@@ -5,9 +5,10 @@ import { stripNestedObjects, validateJWT } from "@/policies/General";
 import {
   getMovieListFromApi,
   mapMovieToDatabase,
+  searchMoviesFromApi,
 } from "@/services/MovieService";
 import { MovieSchema } from "@/validators/Movie";
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 
 export class MovieController extends ModelController<Movie> {
   constructor() {
@@ -17,23 +18,24 @@ export class MovieController extends ModelController<Movie> {
   }
 
   routes(): Router {
-    this.router.get(
-      "/",
-      /*validateJWT("access"),*/ (req, res) => {
-        this.handleFindAll(req, res);
-      },
+    this.router.get("/", (req, res) => {
+      this.handleFindAll(req, res);
+    });
+    this.router.get("/from-movie-api/", (req, res) =>
+      getMovieListFromApi(req, res),
     );
-    this.router.get(
-      "/from-movie-api/",
-      /*  validateJWT("access"), */ (req, res) => getMovieListFromApi(req, res),
-    );
-    this.router.get(
-      "/map-to-db/",
-      /*  validateJWT("access"), */ (req, res) => mapMovieToDatabase(req, res),
-    );
-    this.router.get(
-      "/movie-poster/",
-      /*  validateJWT("access"), */ (req, res) => mapMovieToDatabase(req, res),
+    this.router.get("/map-to-db/", (req, res) => mapMovieToDatabase(req, res));
+    this.router.get("/search", async (req, res) => {
+      try {
+        const { query } = req.query;
+        const results = await searchMoviesFromApi(String(query));
+        res.json({ data: results });
+      } catch (error) {
+        res.status(500).json({ message: error.message });
+      }
+    });
+    this.router.get("/movie-poster/", (req, res) =>
+      mapMovieToDatabase(req, res),
     );
     this.router.get("/:id", validateJWT("access"), (req, res) =>
       this.handleFindOne(req, res),

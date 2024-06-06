@@ -68,7 +68,6 @@ export class Funcion extends BaseModel<Funcion> {
 
   // Hook antes de crear una Función
   @BeforeCreate
-  // Hook antes de actualizar una Función
   @BeforeUpdate
   static async loadDurationHooks(funcion: Funcion) {
     await funcion.loadMovieDuration();

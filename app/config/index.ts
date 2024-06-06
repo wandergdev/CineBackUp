@@ -68,13 +68,15 @@ export const config = {
   emailAuth: {
     requireEmailConfirmation:
       process.env.EMAIL_AUTH_REQUIRE_EMAIL_CONFIRMATION === "true",
-    emailConfirmUrl: process.env.CONFIRM_PAGE || "http://example.com/confirm",
+    //emailConfirmUrl: process.env.CONFIRM_PAGE || "http://example.com/confirm",
     passwordResetUrl: process.env.RESET_PAGE || "http://example.com/reset",
+    emailConfirmUrl: process.env.EMAIL_AUTH_URL,
+    confirmRedirectUrl: process.env.EMAIL_AUTH_CONFIRM_REDIRECT_URL,
   },
 
   email: {
     from_address:
-      process.env.EMAIL_FROM_ADDRESS || "MyApp <no-reply@example.com>",
+      process.env.EMAIL_FROM_ADDRESS || "Cinema Oasis <wanderdj77@gmail.com>",
     host: process.env.EMAIL_SMTP_HOST || "smtp.gmail.com",
     port: process.env.EMAIL_SMPT_PORT
       ? parseInt(process.env.EMAIL_SMPT_PORT)
@@ -149,6 +151,7 @@ export const config = {
     THE_MOVIE_DB_URL:
       process.env.THE_MOVIE_DB_URL ||
       "https://api.themoviedb.org/3/search/movie?",
+    API_KEY: process.env.API_KEY,
   },
 };
 

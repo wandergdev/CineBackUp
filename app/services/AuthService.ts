@@ -1,21 +1,12 @@
-/*
-  AuthService
-    Shared Auth logic
-
-  Business logic:
-    Used on Auth controllers for managing JWTs
-*/
-
 import { config } from "@/config";
 import { JWTBlacklist } from "@/db/models/JWTBlacklist/model/JWTBlacklist";
-import { Profile } from "@/db/models/Profile/model/Profile";
-import { Role } from "@/db/models/Role/model/Role";
-import { User } from "@/db/models/User/model/User";
-import { Params } from "@/policies/General";
 import jwt from "jsonwebtoken";
 import _ from "lodash";
 import moment from "moment";
 import uuid from "uuid";
+import { Params } from "@/policies/General";
+
+const jwtSecret = config.jwt.secret;
 
 export interface Token {
   token: string;
@@ -27,9 +18,9 @@ export interface AuthCredentials {
   token: string;
   expires: number;
   refresh_token: Token;
-  user: Pick<User, "id" | "name" | "email">;
-  profile: Profile;
-  roles: Role[];
+  user: { id: number; name: string; email: string };
+  profile: any;
+  roles: any[];
 }
 
 export interface JWTPayload {
@@ -50,7 +41,7 @@ interface TokenCreation {
   customParams?: Params;
   email: string;
   uid_azure?: string;
-  role: number | Array<Role>;
+  role: number | Array<any>;
   type: string;
   userId?: number;
 }
@@ -67,8 +58,7 @@ class AuthService {
     const expiryUnit: moment.unitOfTime.DurationConstructor =
       config.jwt[type].expiry.unit;
     const expiryLength: number = config.jwt[type].expiry.length;
-    const rolesIds =
-      typeof role === "number" ? [role] : role.map(role => role.id);
+    const rolesIds = Array.isArray(role) ? role.map((r: any) => r.id) : [role];
 
     const expires =
       moment()
@@ -90,18 +80,17 @@ class AuthService {
         roles: rolesIds,
         customParams,
       },
-      config.jwt.secret,
+      jwtSecret,
     );
 
     return {
-      token: token,
-      expires: expires,
-      expires_in: expires_in,
+      token,
+      expires,
+      expires_in,
     };
   }
 
-  public getCredentials(user: User): AuthCredentials {
-    // Prepare response object
+  public getCredentials(user: any): AuthCredentials {
     const token = this.createToken({
       email: user.email,
       uid_azure: user.uid_azure,
@@ -116,7 +105,7 @@ class AuthService {
       type: "refresh",
       userId: user.id,
     });
-    const credentials = {
+    return {
       token: token.token,
       expires: token.expires,
       refresh_token: refreshToken,
@@ -124,10 +113,9 @@ class AuthService {
       profile: user.profile,
       roles: user.roles,
     };
-    return credentials;
   }
 
-  public getExchangeToken(user: User): string {
+  public getExchangeToken(user: any): string {
     const token = this.createToken({
       email: user.email,
       uid_azure: user.uid_azure,
@@ -139,42 +127,36 @@ class AuthService {
   }
 
   public async validateJWT(token: string, type: string): Promise<JWTPayload> {
-    // Decode token
     let decodedjwt: JWTPayload;
     try {
-      decodedjwt = jwt.verify(token, config.jwt.secret) as JWTPayload;
+      decodedjwt = jwt.verify(token, jwtSecret) as JWTPayload;
     } catch (err) {
-      throw err;
+      throw new Error("Invalid token");
     }
+
     const reqTime = Date.now() / 1000;
-    // Check if token expired
     if (decodedjwt.exp <= reqTime) {
-      throw "Token expired";
+      throw new Error("Token expired");
     }
-    // Check if token is early
+
     if (!_.isUndefined(decodedjwt.nbf) && reqTime <= decodedjwt.nbf) {
-      throw "This token is early.";
+      throw new Error("This token is early.");
     }
 
-    // If audience doesn't match
     if (config.jwt[type].audience !== decodedjwt.aud) {
-      throw "This token cannot be accepted for this domain.";
+      throw new Error("This token cannot be accepted for this domain.");
     }
 
-    // If the subject doesn't match
     if (config.jwt[type].subject !== decodedjwt.sub) {
-      throw "This token cannot be used for this request.";
+      throw new Error("This token cannot be used for this request.");
     }
 
-    // Check if blacklisted
-    try {
-      const result = await JWTBlacklist.findOne({ where: { token: token } });
-      // if exists in blacklist, reject
-      if (result != null) throw "This Token is blacklisted.";
-      return decodedjwt;
-    } catch (err) {
-      throw err;
+    const result = await JWTBlacklist.findOne({ where: { token } });
+    if (result != null) {
+      throw new Error("This Token is blacklisted.");
     }
+
+    return decodedjwt;
   }
 }
 

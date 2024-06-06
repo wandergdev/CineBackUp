@@ -16,6 +16,8 @@ import favicon from "serve-favicon";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 
+import { EmailAuthController } from "./controllers/v1/EmailAuth"; // Ajusta la ruta según tu estructura de proyecto
+
 export const app = express();
 export const server = createServer(app);
 

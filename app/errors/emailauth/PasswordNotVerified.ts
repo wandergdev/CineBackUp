@@ -3,3 +3,5 @@ export class PasswordNotVerified extends Error {
     super(`Password is incorrect or could not be verified.`);
   }
 }
+
+export default PasswordNotVerified;

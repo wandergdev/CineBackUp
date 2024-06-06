@@ -21,7 +21,6 @@ import authService, {
 } from "@/services/AuthService";
 import {
   createUserFromEmail,
-  emailCreateUserPassword,
   emailLoginCredentials,
   emailResetUserPassword,
 } from "@/services/EmailAuthService";
@@ -45,323 +44,22 @@ export class EmailAuthController extends Controller {
   }
 
   routes(): Router {
-    /**
-     * @swagger
-     * tags:
-     *   - name: Email Auth
-     *     description: User authorization managing by email
-     */
-
-    /**
-     * @swagger
-     * components:
-     *   schemas:
-     *     LoginUserEmail:
-     *       type: object
-     *       required:
-     *         - email
-     *         - password
-     *       properties:
-     *         email:
-     *           type: string
-     *           format: email
-     *           maxLength: 255
-     *           example: user@example.com
-     *         password:
-     *           type: string
-     *           format: password
-     *           minimum: 8
-     *           maximum: 255
-     *           example: "12345678"
-     *
-     *     ResendUserEmail:
-     *       type: object
-     *       required:
-     *         - email
-     *       properties:
-     *         email:
-     *           type: string
-     *           format: email
-     *           maxLength: 255
-     *           example: user@example.com
-     *
-     *     ChangePassword:
-     *       type: object
-     *       required:
-     *         - email
-     *         - oldPass
-     *         - newPass
-     *       properties:
-     *         email:
-     *           type: string
-     *           format: email
-     *           maxLength: 255
-     *           example: user@example.com
-     *         oldPass:
-     *           type: string
-     *           format: password
-     *           minimum: 8
-     *           maximum: 255
-     *           example: "123453434"
-     *         newPass:
-     *           type: string
-     *           format: password
-     *           minimum: 8
-     *           maximum: 255
-     *           example: "12345678"
-     *
-     *     ResetToken:
-     *       type: object
-     *       required:
-     *         - email
-     *         - password
-     *       properties:
-     *         email:
-     *           type: string
-     *           format: email
-     *           maxLength: 255
-     *           example: user@example.com
-     *         password:
-     *           type: string
-     *           format: password
-     *           minimum: 8
-     *           maximum: 255
-     *           example: "12345678"
-     *         token:
-     *           type: string
-     *           minimum: 8
-     *           maximum: 255
-     *           example: >-
-     *             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
-     *             SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-     *
-     *     RegisterUserEmail:
-     *       type: object
-     *       required:
-     *         - email
-     *         - password
-     *       properties:
-     *         email:
-     *           type: string
-     *           format: email
-     *           maxLength: 255
-     *           example: user@example.com
-     *         password:
-     *           type: string
-     *           format: password
-     *           minimum: 8
-     *           maximum: 255
-     *           example: "12345678"
-     *         locale:
-     *           type: string
-     *           enum: [es, en]
-     *           example: "en"
-     *         timezone:
-     *           type: string
-     *           example: "PDT"
-     *
-     *     Token:
-     *       type: object
-     *       properties:
-     *         token:
-     *           type: string
-     *           example: >-
-     *             eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.
-     *             SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
-     *
-     */
-
-    /**
-     * @swagger
-     * components:
-     *   requestBodies:
-     *     LoginUser:
-     *       required: true
-     *       description: User credentials to perform login
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/LoginUserEmail'
-     *
-     *     RegisterUser:
-     *       required: true
-     *       description: Register user
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/RegisterUserEmail'
-     *
-     *     ResetUserToken:
-     *       required: true
-     *       description: Reset user token
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/ResetToken'
-     *
-     *     ChangePassword:
-     *       required: true
-     *       description: Change user password
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/ChangePassword'
-     *
-     *     ResentEmailConfirmation:
-     *       required: true
-     *       description: Send email confirmation
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/ResendUserEmail'
-     *
-     */
-
-    /**
-     * @swagger
-     * /emailauth/login:
-     *   post:
-     *     tags:
-     *       - Email Auth
-     *     summary: Login the user
-     *     description: Creates user credentials which grants access to other endpoints.
-     *     operationId: Login
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new session has been created as a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - $ref: '#/components/schemas/CreatedResponse'
-     *                 - type: object
-     *                   properties:
-     *                     data:
-     *                       $ref: '#/components/schemas/Token'
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *     requestBody:
-     *       $ref: '#/components/requestBodies/LoginUser'
-     */
     this.router.post("/login", validateBody(AuthLoginSchema), (req, res) =>
       this.login(req, res),
     );
 
-    /**
-     * @swagger
-     * /emailauth/register:
-     *   post:
-     *     tags:
-     *       - Email Auth
-     *     summary: Register user
-     *     description: Creates user entity.
-     *     operationId: Register
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new session has been created as a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - type: object
-     *                   properties:
-     *                      message:
-     *                        type: string
-     *                        example: OK
-     *                      data:
-     *                        type: string
-     *                        example: Please check your email inbox.
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *     requestBody:
-     *       $ref: '#/components/requestBodies/RegisterUser'
-     */
     this.router.post(
       "/register",
       validateBody(AuthRegisterSchema),
       (req, res) => this.register(req, res),
     );
 
-    /**
-     * @swagger
-     * /emailauth/reset-password:
-     *   post:
-     *     tags:
-     *       - Email Auth
-     *     summary: Resets User Password
-     *     description: Sends email to reset user password
-     *     operationId: Reset
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new session has been created as a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - type: object
-     *                   properties:
-     *                      message:
-     *                        type: string
-     *                        example: OK
-     *                      data:
-     *                        type: string
-     *                        example: Please check your email inbox.
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *     requestBody:
-     *       $ref: '#/components/requestBodies/RegisterUser'
-     */
     this.router.post(
       "/reset-password",
       validateBody(AuthResetPasswordSchema),
       (req, res) => this.resetPassword(req, res),
     );
 
-    /**
-     * @swagger
-     * /emailauth/create-new-password:
-     *   post:
-     *     tags:
-     *       - Email Auth
-     *     summary: Creates New User Password
-     *     description: Creates new password for user through email reset password template
-     *     operationId: Create
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new session has been created as a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - type: object
-     *                   properties:
-     *                      message:
-     *                        type: string
-     *                        example: OK
-     *                      data:
-     *                        type: string
-     *                        example: Please check your email inbox.
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *     requestBody:
-     *       $ref: '#/components/requestBodies/RegisterUser'
-     */
     this.router.post(
       "/create-new-password",
       validateJWTOnQueryString("reset", "tk"),
@@ -369,101 +67,12 @@ export class EmailAuthController extends Controller {
       (req, res) => this.createPassword(req, res),
     );
 
-    /**
-     * @swagger
-     * /emailauth/reset:
-     *   get:
-     *     tags:
-     *       - Email Auth
-     *     summary: Get Reset user token
-     *     operationId: GetReset
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new token has been created a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - $ref: '#/components/schemas/CreatedResponse'
-     *                 - type: object
-     *                   properties:
-     *                     data:
-     *                       $ref: '#/components/schemas/Token'
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     */
     this.router.get("/reset", (req, res) => this.resetGet(req, res));
 
-    /**
-     * @swagger
-     * /emailauth/reset:
-     *   post:
-     *     tags:
-     *       - Email Auth
-     *     summary: Reset user token
-     *     operationId: Reset
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new session has been created as a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - type: object
-     *                   properties:
-     *                      token:
-     *                       $ref: '#/components/schemas/Token'
-     *                      expires:
-     *                        type: number
-     *                        example: 1625762317.714
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *     requestBody:
-     *       $ref: '#/components/requestBodies/ResetUserToken'
-     */
     this.router.post("/reset", validateBody(AuthResetPostSchema), (req, res) =>
       this.resetPost(req, res),
     );
 
-    /**
-     * @swagger
-     * /emailauth/change:
-     *   post:
-     *     tags:
-     *       - Email Auth
-     *     summary: Change user password
-     *     operationId: ChangePassword
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new password has been created as a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - type: object
-     *                   properties:
-     *                      token:
-     *                       $ref: '#/components/schemas/Token'
-     *                      expires:
-     *                        type: number
-     *                        example: 1625762317.714
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *     requestBody:
-     *       $ref: '#/components/requestBodies/ChangePassword'
-     */
     this.router.post(
       "/change",
       validateJWT("access"),
@@ -471,79 +80,8 @@ export class EmailAuthController extends Controller {
       (req, res) => this.changePassword(req, res),
     );
 
-    /**
-     * @swagger
-     * /emailauth/confirm:
-     *   get:
-     *     tags:
-     *       - Email Auth
-     *     summary: Confirm user email.
-     *     description: Return the home page if the confirmation is successfully.
-     *     operationId: ConfirmEmail
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: query
-     *         name: token
-     *         description: |
-     *           User token
-     *         required: true
-     *     responses:
-     *       '200':
-     *         description: The request has succeeded.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - $ref: '#/components/schemas/SuccessfulResponse'
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '403':
-     *         $ref: '#/components/responses/ForbiddenError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *
-     */
-    this.router.get(
-      "/confirm",
-      validateJWTOnQueryString("confirmEmail", "tk"),
-      (req, res) => this.confirmEmail(req, res),
-    );
+    this.router.get("/confirm", (req, res) => this.confirmEmail(req, res));
 
-    /**
-     * @swagger
-     * /emailauth/resendconfirm:
-     *   post:
-     *     tags:
-     *       - Email Auth
-     *     summary: Resend confirm
-     *     operationId: ResendConfirm
-     *     responses:
-     *       '201':
-     *         description: The request has succeeded and a new email confirm has been sent as a result.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               allOf:
-     *                 - type: object
-     *                   properties:
-     *                      message:
-     *                        type: string
-     *                        example: OK
-     *                      data:
-     *                        type: string
-     *                        example: Please check your email inbox.
-     *       '400':
-     *         $ref: '#/components/responses/BadRequestError'
-     *       '401':
-     *         $ref: '#/components/responses/UnauthorizedError'
-     *       '500':
-     *         $ref: '#/components/responses/InternalServerError'
-     *     requestBody:
-     *       $ref: '#/components/requestBodies/ResentEmailConfirmation'
-     */
     this.router.post(
       "/resendconfirm",
       validateBody(AuthResendConfirmSchema),
@@ -555,25 +93,19 @@ export class EmailAuthController extends Controller {
 
   async login(req: Request, res: Response) {
     try {
-      const email = req.body.email;
-      const password = req.body.password;
-
+      const { email, password } = req.body;
       const loginCredentials = await emailLoginCredentials({ email, password });
-
       return Controller.ok(res, loginCredentials);
     } catch (err) {
       if (err instanceof MailNotFound) {
         return Controller.notFound(res, err.message);
       }
-
       if (err instanceof PasswordNotVerified) {
         return Controller.badRequest(res, err.message);
       }
-
       if (err instanceof UnauthorizedUser) {
         return Controller.unauthorized(res, err.message);
       }
-
       return handleServerError(err, res);
     }
   }
@@ -585,11 +117,9 @@ export class EmailAuthController extends Controller {
       password: req.body.password,
     };
 
-    // Optional extra params:
     const locale: Profile["locale"] | undefined = req.body.locale;
     const timezone: string | undefined = req.body.timezone;
 
-    // Validate
     if (!newUser.email || !newUser.password) {
       return Controller.badRequest(res);
     }
@@ -597,7 +127,6 @@ export class EmailAuthController extends Controller {
     const lowerCaseEmail = newUser.email.toLowerCase();
     try {
       if (config.emailAuth.requireEmailConfirmation) {
-        // Validate if user exists but hasn't been confirmed
         const user = await User.findOne({
           where: {
             email: lowerCaseEmail,
@@ -607,7 +136,6 @@ export class EmailAuthController extends Controller {
         });
 
         if (user) {
-          // User existis but email hasn't been confirmed
           return Controller.conflict(res, "email pending validation");
         }
       }
@@ -617,8 +145,7 @@ export class EmailAuthController extends Controller {
         password: newUser.password,
         name: newUser.name,
       });
-      // We need to do another query because before the profile wasn't ready
-      // We need to do another query because before the role wasn't ready
+
       const findCreatedUser = await User.findOne({
         where: { id: createUser.id },
         include: [
@@ -626,7 +153,7 @@ export class EmailAuthController extends Controller {
           { model: Role, as: "roles" },
         ],
       });
-      // Set extra params:
+
       if (locale) {
         findCreatedUser.profile.locale = locale;
       }
@@ -637,7 +164,6 @@ export class EmailAuthController extends Controller {
 
       await findCreatedUser.profile.save();
       if (config.emailAuth.requireEmailConfirmation) {
-        // Send Email Confirmation email
         try {
           const info = await this.handleSendConfirmEmail(findCreatedUser.email);
           log.info(info);
@@ -676,10 +202,8 @@ export class EmailAuthController extends Controller {
 
   async resetPassword(req: Request, res: Response) {
     try {
-      const email = req.body.email;
-
+      const { email } = req.body;
       const emailSentInfo = await emailResetUserPassword(email);
-
       return Controller.ok(res, emailSentInfo);
     } catch (err) {
       if (err instanceof MailNotFound) {
@@ -694,14 +218,8 @@ export class EmailAuthController extends Controller {
 
   async createPassword(req: Request, res: Response) {
     try {
-      const email = req.session.user.email;
-      const password = req.body.password;
-
-      const userCredentials = await emailCreateUserPassword({
-        email,
-        password,
-      });
-
+      const { email, password } = req.body;
+      const userCredentials = await emailResetUserPassword(email);
       return Controller.ok(res, userCredentials);
     } catch (err) {
       if (err instanceof MailNotFound) {
@@ -721,10 +239,9 @@ export class EmailAuthController extends Controller {
     if (token === "") {
       return Controller.unauthorized(res);
     }
-    // Decode token
     try {
-      const decodedjwt = await authService.validateJWT(token, "reset");
-      if (!decodedjwt) {
+      const decoded = await authService.validateJWT(token, "reset");
+      if (!decoded) {
         return Controller.unauthorized(res);
       }
 
@@ -734,21 +251,14 @@ export class EmailAuthController extends Controller {
     }
   }
 
-  /*
-      This can serve two different use cases:
-        1. Request sending of recovery token via email (body: { email: '...' })
-        2. Set new password (body: { token: 'mytoken', password: 'newpassword' })
-    */
   async resetPost(req: Request, res: Response) {
-    const token: string = req.body.token;
-    const password: string = req.body.password;
+    const { token, password } = req.body;
 
     if (token === "" || password === "") {
-      const email: string = req.body.email;
+      const { email } = req.body;
       if (email === "") {
         return Controller.badRequest(res);
       }
-      // case 1
       try {
         const info = await this.handleResetEmail(email);
         log.info(info);
@@ -768,7 +278,6 @@ export class EmailAuthController extends Controller {
       }
     }
 
-    // case 2
     try {
       const credentials = await this.handleResetChPass(token, password);
       return Controller.ok(res, credentials);
@@ -791,12 +300,10 @@ export class EmailAuthController extends Controller {
     const { email = "", oldPass = "", newPass = "" } = req.body;
     const haveRequiredInfo = email !== "" && oldPass !== "" && newPass !== "";
 
-    // Validate
     if (!haveRequiredInfo) {
       return Controller.badRequest(res);
     }
 
-    // IMPORTANT: Check if email is the same as the one in the token
     if (email != req.session.jwt.email) {
       return Controller.unauthorized(res);
     }
@@ -830,27 +337,48 @@ export class EmailAuthController extends Controller {
   }
 
   async confirmEmail(req: Request, res: Response) {
-    const userId = req.session.jwt.id;
-    const email = req.session.user.email;
-    if (!userId) {
+    const { tk } = req.query;
+
+    try {
+      console.log("Token received:", tk);
+      const decoded = await authService.validateJWT(
+        tk as string,
+        "confirmEmail",
+      );
+      console.log("Decoded token:", decoded);
+      const user = await User.findByPk(decoded.id);
+
+      if (!user) {
+        console.log("User not found");
+        return res.redirect(
+          `${config.emailAuth.confirmRedirectUrl.replace(
+            "{token}",
+            tk as string,
+          )}&success=false&email=${decoded.email}`,
+        );
+      }
+
+      user.isEmailConfirmed = true;
+      await user.save();
+
+      console.log("User email confirmed:", user.email);
+
       return res.redirect(
-        `${config.emailAuth.emailConfirmUrl}?success=false&email=${email}`,
+        `${config.emailAuth.confirmRedirectUrl.replace(
+          "{token}",
+          tk as string,
+        )}&success=true&email=${user.email}`,
+      );
+    } catch (err) {
+      console.log("Error validating token:", err);
+      log.error(err);
+      return res.redirect(
+        `${config.emailAuth.confirmRedirectUrl.replace(
+          "{token}",
+          tk as string,
+        )}&success=false&email=${req.query.email}`,
       );
     }
-
-    const user = await User.findByPk(userId);
-    if (!user) {
-      return res.redirect(
-        `${config.emailAuth.emailConfirmUrl}?success=false&email=${email}`,
-      );
-    }
-
-    user.isActive = true;
-    user.isEmailConfirmed = true;
-    await user.save();
-    return res.redirect(
-      `${config.emailAuth.emailConfirmUrl}?success=true&email=${email}`,
-    );
   }
 
   private async handleResetEmail(email: string): Promise<any> {
@@ -867,7 +395,6 @@ export class EmailAuthController extends Controller {
       throw { error: "notFound", msg: "Email not found" };
     }
 
-    // Create reset token
     const token = authService.createToken({
       email: user.email,
       uid_azure: user.uid_azure,
@@ -882,11 +409,11 @@ export class EmailAuthController extends Controller {
     token: string,
     password: string,
   ): Promise<AuthCredentials> {
-    let decodedjwt: JWTPayload;
+    let decoded: JWTPayload;
 
     try {
-      decodedjwt = await authService.validateJWT(token, "reset");
-      if (!decodedjwt) {
+      decoded = await authService.validateJWT(token, "reset");
+      if (!decoded) {
         throw { error: "unauthorized", msg: "Invalid Token" };
       }
     } catch (err) {
@@ -895,9 +422,8 @@ export class EmailAuthController extends Controller {
     }
 
     try {
-      // Save new password
       const user = await User.findOne({
-        where: { id: decodedjwt.id },
+        where: { id: decoded.id },
         include: [
           { model: Profile, as: "profile" },
           { model: Role, as: "roles" },
@@ -911,15 +437,14 @@ export class EmailAuthController extends Controller {
       user.password = password;
       await user.save();
 
-      // Blacklist JWT asynchronously
       JWTBlacklist.create({
         token: token,
-        expires: new Date(decodedjwt.exp * 1000),
+        expires: new Date(decoded.exp * 1000),
       }).catch(err => {
         log.error(err);
       });
 
-      this.sendEmailPasswordChanged(user); // We send it asynchronously, we don't care if there is a mistake
+      this.sendEmailPasswordChanged(user);
 
       const credentials = authService.getCredentials(user);
       return credentials;
@@ -982,13 +507,11 @@ export class EmailAuthController extends Controller {
       throw { error: "notFound", msg: "Email not found" };
     }
 
-    // Create reset token
     const token = authService.createToken({
       email: user.email,
-      uid_azure: user.uid_azure,
+      userId: user.id, // Asegúrate de incluir el ID del usuario
       role: user.roles,
       type: "confirmEmail",
-      userId: user.id,
     });
     return this.sendEmailConfirm(user, token.token, user.name);
   }
@@ -1004,7 +527,7 @@ export class EmailAuthController extends Controller {
       page: EmailTemplate.EmailConfirm,
       locale: user.profile?.locale ?? "en",
       context: {
-        url: `${config.urls.baseApi}/emailauth/confirm?tk=${token}`,
+        url: `http://localhost:3000/confirm-email?tk=${token}`, // Ajusta la URL según tu configuración
         name: name || user.email,
         email: user.email,
       },
@@ -1028,7 +551,6 @@ export class EmailAuthController extends Controller {
     }
 
     const lowerCaseEmail = email.toLowerCase();
-    // Validate if user exists but hasn't been confirmed
     const user = await User.findOne({
       where: {
         email: lowerCaseEmail,

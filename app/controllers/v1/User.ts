@@ -18,6 +18,8 @@ import { UserSchema } from "../../validators/User";
 import { Request, Response, Router } from "express";
 
 export class UserController extends ModelController<User> {
+  email: any;
+  id: any;
   constructor() {
     super();
     this.name = "user";
