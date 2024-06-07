@@ -59,17 +59,17 @@ export class FuncionController extends ModelController<Funcion> {
   }
 
   async handleCreate(req: Request, res: Response) {
-    const { movieId, salaId, startTime } = req.body;
+    const { movieId, salaId, startTime, category } = req.body;
 
     const [hours, minutes] = startTime.split(":").map(Number);
-    const startTimeMinutes = hours * 60 + minutes;
+    const startTimeInMinutes = hours * 60 + minutes;
 
     const movie = await Movie.findByPk(movieId);
     if (!movie) {
       return res.status(400).json({ message: "Invalid movie ID" });
     }
 
-    const endTimeMinutes = startTimeMinutes + movie.duration;
+    const endTimeInMinutes = startTimeInMinutes + movie.duration;
 
     try {
       // Verificar disponibilidad de la sala
@@ -79,24 +79,24 @@ export class FuncionController extends ModelController<Funcion> {
           [Op.or]: [
             {
               startTime: {
-                [Op.between]: [startTimeMinutes, endTimeMinutes],
+                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
               },
             },
             {
               endTime: {
-                [Op.between]: [startTimeMinutes, endTimeMinutes],
+                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
               },
             },
             {
               [Op.and]: [
                 {
                   startTime: {
-                    [Op.lte]: startTimeMinutes,
+                    [Op.lte]: startTimeInMinutes,
                   },
                 },
                 {
                   endTime: {
-                    [Op.gte]: endTimeMinutes,
+                    [Op.gte]: endTimeInMinutes,
                   },
                 },
               ],
@@ -113,8 +113,8 @@ export class FuncionController extends ModelController<Funcion> {
 
       const nuevaFuncion = await Funcion.create({
         ...req.body,
-        startTime: startTimeMinutes,
-        endTime: endTimeMinutes,
+        startTime: startTimeInMinutes,
+        endTime: endTimeInMinutes,
       });
       res.status(201).send({ data: nuevaFuncion });
     } catch (error) {
