@@ -10,16 +10,20 @@ import Sequelize from "sequelize";
  * createTable "region", deps: []
  * createTable "role", deps: []
  * createTable "user", deps: []
+ * createTable "sala", deps: [user]
+ * createTable "funcion", deps: [movie, sala]
+ * createTable "preciotaquillas", deps: [user]
  * createTable "profile", deps: [user]
  * createTable "role_policy", deps: [role, policy]
+ * createTable "comprartaquilla", deps: [user, funcion]
  * createTable "user_role", deps: [user, role]
  *
  **/
 
 const info = {
-  revision: "20240128121044",
+  revision: "20240607104011",
   name: "migration",
-  created: "2024-01-28T16:10:44.140Z",
+  created: "2024-06-07T14:40:11.184Z",
   comment: "",
 };
 
@@ -118,17 +122,37 @@ const migrationCommands = [
           defaultValue: null,
           allowNull: true,
         },
-        director: {
-          type: Sequelize.STRING,
-          field: "director",
-          defaultValue: null,
-          allowNull: true,
-        },
         duration: {
           type: Sequelize.INTEGER,
           field: "duration",
           defaultValue: 0,
           allowNull: true,
+        },
+        fecha_lanzamiento: {
+          type: Sequelize.DATE,
+          field: "fecha_lanzamiento",
+          allowNull: true,
+        },
+        poster_path: {
+          type: Sequelize.STRING,
+          field: "poster_path",
+          allowNull: true,
+        },
+        description: {
+          type: Sequelize.TEXT,
+          field: "description",
+          allowNull: false,
+        },
+        genero: {
+          type: Sequelize.ARRAY(Sequelize.STRING),
+          field: "genero",
+          allowNull: false,
+        },
+        rating: { type: Sequelize.INTEGER, field: "rating", allowNull: false },
+        external_id: {
+          type: Sequelize.INTEGER,
+          field: "external_id",
+          allowNull: false,
         },
         createdAt: {
           type: Sequelize.DATE,
@@ -353,6 +377,140 @@ const migrationCommands = [
   {
     fn: "createTable",
     params: [
+      "sala",
+      {
+        id: {
+          type: Sequelize.INTEGER,
+          field: "id",
+          autoIncrement: true,
+          primaryKey: true,
+        },
+        name: { type: Sequelize.STRING, field: "name", allowNull: false },
+        capacity: {
+          type: Sequelize.INTEGER,
+          field: "capacity",
+          allowNull: false,
+        },
+        type: { type: Sequelize.STRING, field: "type", allowNull: false },
+        createdBy: {
+          type: Sequelize.INTEGER,
+          onUpdate: "CASCADE",
+          onDelete: "NO ACTION",
+          references: { model: "user", key: "id" },
+          allowNull: true,
+          name: "createdBy",
+          field: "createdBy",
+        },
+        createdAt: {
+          type: Sequelize.DATE,
+          field: "createdAt",
+          allowNull: false,
+        },
+        updatedAt: {
+          type: Sequelize.DATE,
+          field: "updatedAt",
+          allowNull: false,
+        },
+      },
+      {},
+    ],
+  },
+  {
+    fn: "createTable",
+    params: [
+      "funcion",
+      {
+        id: {
+          type: Sequelize.INTEGER,
+          field: "id",
+          autoIncrement: true,
+          primaryKey: true,
+        },
+        movieId: {
+          type: Sequelize.INTEGER,
+          onUpdate: "CASCADE",
+          onDelete: "NO ACTION",
+          references: { model: "movie", key: "id" },
+          name: "movieId",
+          field: "movieId",
+          allowNull: false,
+        },
+        duration: {
+          type: Sequelize.INTEGER,
+          field: "duration",
+          defaultValue: 0,
+          allowNull: true,
+        },
+        salaId: {
+          type: Sequelize.INTEGER,
+          onUpdate: "CASCADE",
+          onDelete: "NO ACTION",
+          references: { model: "sala", key: "id" },
+          name: "salaId",
+          field: "salaId",
+          allowNull: false,
+        },
+        startTime: {
+          type: Sequelize.STRING,
+          field: "startTime",
+          allowNull: false,
+        },
+        endTime: { type: Sequelize.STRING, field: "endTime", allowNull: false },
+        status: { type: Sequelize.STRING, field: "status", allowNull: false },
+        createdAt: {
+          type: Sequelize.DATE,
+          field: "createdAt",
+          allowNull: false,
+        },
+        updatedAt: {
+          type: Sequelize.DATE,
+          field: "updatedAt",
+          allowNull: false,
+        },
+      },
+      {},
+    ],
+  },
+  {
+    fn: "createTable",
+    params: [
+      "preciotaquillas",
+      {
+        id: {
+          type: Sequelize.INTEGER,
+          field: "id",
+          autoIncrement: true,
+          primaryKey: true,
+          allowNull: false,
+        },
+        name: { type: Sequelize.STRING, field: "name", allowNull: false },
+        precio: { type: Sequelize.INTEGER, field: "precio", allowNull: false },
+        userId: {
+          type: Sequelize.INTEGER,
+          onUpdate: "CASCADE",
+          onDelete: "NO ACTION",
+          references: { model: "user", key: "id" },
+          allowNull: true,
+          name: "userId",
+          field: "userId",
+        },
+        createdAt: {
+          type: Sequelize.DATE,
+          field: "createdAt",
+          allowNull: false,
+        },
+        updatedAt: {
+          type: Sequelize.DATE,
+          field: "updatedAt",
+          allowNull: false,
+        },
+      },
+      {},
+    ],
+  },
+  {
+    fn: "createTable",
+    params: [
       "profile",
       {
         id: {
@@ -419,6 +577,76 @@ const migrationCommands = [
           references: { model: "policy", key: "id" },
           name: "policyId",
           field: "policyId",
+          allowNull: false,
+        },
+        createdAt: {
+          type: Sequelize.DATE,
+          field: "createdAt",
+          allowNull: false,
+        },
+        updatedAt: {
+          type: Sequelize.DATE,
+          field: "updatedAt",
+          allowNull: false,
+        },
+      },
+      {},
+    ],
+  },
+  {
+    fn: "createTable",
+    params: [
+      "comprartaquilla",
+      {
+        id: {
+          type: Sequelize.INTEGER,
+          field: "id",
+          autoIncrement: true,
+          primaryKey: true,
+        },
+        userId: {
+          type: Sequelize.INTEGER,
+          onUpdate: "CASCADE",
+          onDelete: "NO ACTION",
+          references: { model: "user", key: "id" },
+          name: "userId",
+          field: "userId",
+          allowNull: false,
+        },
+        funcionId: {
+          type: Sequelize.INTEGER,
+          onUpdate: "CASCADE",
+          onDelete: "NO ACTION",
+          references: { model: "funcion", key: "id" },
+          name: "funcionId",
+          field: "funcionId",
+          allowNull: false,
+        },
+        cantidadTaquillas: {
+          type: Sequelize.INTEGER,
+          field: "cantidadTaquillas",
+          defaultValue: 1,
+          allowNull: false,
+        },
+        tipoTaquilla: {
+          type: Sequelize.STRING,
+          field: "tipoTaquilla",
+          allowNull: false,
+        },
+        costoTotal: {
+          type: Sequelize.FLOAT,
+          field: "costoTotal",
+          allowNull: false,
+        },
+        fechaHoraCompra: {
+          type: Sequelize.DATE,
+          field: "fechaHoraCompra",
+          allowNull: true,
+          defaultValue: Sequelize.NOW,
+        },
+        estadoTransaccion: {
+          type: Sequelize.STRING,
+          field: "estadoTransaccion",
           allowNull: false,
         },
         createdAt: {

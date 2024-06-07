@@ -168,7 +168,12 @@
         "startTime": {
           "allowNull": false,
           "field": "startTime",
-          "seqType": "Sequelize.TIME"
+          "seqType": "Sequelize.INTEGER"
+        },
+        "endTime": {
+          "allowNull": false,
+          "field": "endTime",
+          "seqType": "Sequelize.INTEGER"
         },
         "status": {
           "allowNull": false,
@@ -754,5 +759,5 @@
       "indexes": []
     }
   },
-  "revision": "20240427213019"
+  "revision": "20240607110512"
 }

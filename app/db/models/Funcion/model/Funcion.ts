@@ -52,10 +52,16 @@ export class Funcion extends BaseModel<Funcion> {
   sala: Sala;
 
   @Column({
-    type: DataType.TIME,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  startTime: string; // Fecha y hora de inicio de la función
+  startTime: number; // Hora de inicio en minutos desde medianoche
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  endTime: number; // Hora de fin en minutos desde medianoche
 
   @Column({
     type: DataType.STRING,
@@ -71,6 +77,7 @@ export class Funcion extends BaseModel<Funcion> {
   @BeforeUpdate
   static async loadDurationHooks(funcion: Funcion) {
     await funcion.loadMovieDuration();
+    funcion.calculateEndTime();
   }
 
   // Método para cargar la duración desde la entidad Movie
@@ -81,18 +88,8 @@ export class Funcion extends BaseModel<Funcion> {
     }
   }
 
-  // Método para programar una función
-  static async scheduleFunction(datosFuncion: any): Promise<Funcion> {
-    return await Funcion.create(datosFuncion);
-  }
-
-  // Método para cancelar una función
-  static async cancelFunction(idFuncion: number): Promise<[number, Funcion[]]> {
-    return await Funcion.update(
-      { status: "Cancelada" },
-      {
-        where: { id: idFuncion },
-      },
-    );
+  // Método para calcular el endTime
+  calculateEndTime() {
+    this.endTime = this.startTime + this.duration;
   }
 }

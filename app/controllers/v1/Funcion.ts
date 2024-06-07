@@ -1,8 +1,9 @@
 import { ModelController } from "@/libraries/ModelController";
 import { Funcion } from "../../db/models/Funcion/model/Funcion";
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import { validateJWT } from "@/policies/General";
 import { Movie } from "../../db/models/Movie/model/Movie";
+import { Op } from "sequelize";
 
 export class FuncionController extends ModelController<Funcion> {
   constructor() {
@@ -28,18 +29,10 @@ export class FuncionController extends ModelController<Funcion> {
       this.handleDelete(req, res),
     );
 
-    // Custom delete route
-    this.router.delete("/:id", validateJWT("access"), (req, res) => {
-      this.model
-        .destroy({ where: { id: req.params.id } })
-        .then(() => res.status(200).send({ message: "Deleted successfully" }))
-        .catch((error: any) => res.status(500).send({ error: error.message }));
-    });
-
     return this.router;
   }
 
-  async handleFindAllWithMovie(req, res) {
+  async handleFindAllWithMovie(req: Request, res: Response) {
     try {
       const data = await this.model.findAll({ include: [Movie] });
       res.status(200).send({ data });
@@ -49,7 +42,7 @@ export class FuncionController extends ModelController<Funcion> {
     }
   }
 
-  async handleFindOneWithMovie(req, res) {
+  async handleFindOneWithMovie(req: Request, res: Response) {
     try {
       const data = await this.model.findOne({
         where: { id: req.params.id },
@@ -61,6 +54,74 @@ export class FuncionController extends ModelController<Funcion> {
       res.status(200).send({ data });
     } catch (error) {
       console.error("Error fetching function with movie:", error);
+      res.status(500).send({ error: error.message });
+    }
+  }
+
+  async handleCreate(req: Request, res: Response) {
+    const { movieId, salaId, startTime } = req.body;
+
+    // Convert start time to minutes since midnight
+    const [startHours, startMinutes] = startTime.split(":").map(Number);
+    const startTimeInMinutes = startHours * 60 + startMinutes;
+
+    const movie = await Movie.findByPk(movieId);
+    if (!movie) {
+      return res.status(400).json({ message: "Invalid movie ID" });
+    }
+
+    const endTimeInMinutes = startTimeInMinutes + movie.duration;
+
+    try {
+      // Verificar disponibilidad de la sala
+      const conflict = await Funcion.findOne({
+        where: {
+          salaId,
+          [Op.or]: [
+            {
+              startTime: {
+                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
+              },
+            },
+            {
+              endTime: {
+                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
+              },
+            },
+            {
+              [Op.and]: [
+                {
+                  startTime: {
+                    [Op.lte]: startTimeInMinutes,
+                  },
+                },
+                {
+                  endTime: {
+                    [Op.gte]: endTimeInMinutes,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      if (conflict) {
+        return res.status(400).json({
+          message: "La sala ya está ocupada en el horario seleccionado",
+        });
+      }
+
+      const nuevaFuncion = await Funcion.create({
+        movieId,
+        salaId,
+        startTime: startTimeInMinutes,
+        endTime: endTimeInMinutes,
+        status: "Programada",
+      });
+      res.status(201).send({ data: nuevaFuncion });
+    } catch (error) {
+      console.error("Error creating function:", error);
       res.status(500).send({ error: error.message });
     }
   }
