@@ -61,16 +61,15 @@ export class FuncionController extends ModelController<Funcion> {
   async handleCreate(req: Request, res: Response) {
     const { movieId, salaId, startTime } = req.body;
 
-    // Convert start time to minutes since midnight
-    const [startHours, startMinutes] = startTime.split(":").map(Number);
-    const startTimeInMinutes = startHours * 60 + startMinutes;
+    const [hours, minutes] = startTime.split(":").map(Number);
+    const startTimeMinutes = hours * 60 + minutes;
 
     const movie = await Movie.findByPk(movieId);
     if (!movie) {
       return res.status(400).json({ message: "Invalid movie ID" });
     }
 
-    const endTimeInMinutes = startTimeInMinutes + movie.duration;
+    const endTimeMinutes = startTimeMinutes + movie.duration;
 
     try {
       // Verificar disponibilidad de la sala
@@ -80,24 +79,24 @@ export class FuncionController extends ModelController<Funcion> {
           [Op.or]: [
             {
               startTime: {
-                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
+                [Op.between]: [startTimeMinutes, endTimeMinutes],
               },
             },
             {
               endTime: {
-                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
+                [Op.between]: [startTimeMinutes, endTimeMinutes],
               },
             },
             {
               [Op.and]: [
                 {
                   startTime: {
-                    [Op.lte]: startTimeInMinutes,
+                    [Op.lte]: startTimeMinutes,
                   },
                 },
                 {
                   endTime: {
-                    [Op.gte]: endTimeInMinutes,
+                    [Op.gte]: endTimeMinutes,
                   },
                 },
               ],
@@ -113,11 +112,9 @@ export class FuncionController extends ModelController<Funcion> {
       }
 
       const nuevaFuncion = await Funcion.create({
-        movieId,
-        salaId,
-        startTime: startTimeInMinutes,
-        endTime: endTimeInMinutes,
-        status: "Programada",
+        ...req.body,
+        startTime: startTimeMinutes,
+        endTime: endTimeMinutes,
       });
       res.status(201).send({ data: nuevaFuncion });
     } catch (error) {
