@@ -180,6 +180,14 @@
           "field": "status",
           "seqType": "Sequelize.STRING"
         },
+        "isPremiere": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isPremiere",
+          "seqType": "Sequelize.BOOLEAN"
+        },
         "createdAt": {
           "allowNull": false,
           "field": "createdAt",
@@ -284,6 +292,14 @@
           "allowNull": false,
           "field": "external_id",
           "seqType": "Sequelize.INTEGER"
+        },
+        "proximamente": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "proximamente",
+          "seqType": "Sequelize.BOOLEAN"
         },
         "createdAt": {
           "allowNull": false,
@@ -759,5 +775,5 @@
       "indexes": []
     }
   },
-  "revision": "20240607110512"
+  "revision": "20240612201835"
 }

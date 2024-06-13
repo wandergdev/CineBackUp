@@ -56,6 +56,25 @@ export class MovieController extends ModelController<Movie> {
       this.handleDelete(req, res),
     );
 
+    // Agregar ruta para actualizar el campo 'proximamente'
+    this.router.put(
+      "/:id/proximamente",
+      validateJWT("access"),
+      async (req, res) => {
+        try {
+          const movie = await this.model.findByPk(req.params.id);
+          if (!movie) {
+            return res.status(404).json({ message: "Movie not found" });
+          }
+          movie.proximamente = req.body.proximamente;
+          await movie.save();
+          res.status(200).json({ data: movie });
+        } catch (error) {
+          res.status(500).json({ message: error.message });
+        }
+      },
+    );
+
     return this.router;
   }
 }

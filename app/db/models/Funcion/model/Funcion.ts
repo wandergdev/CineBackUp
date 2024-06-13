@@ -69,6 +69,13 @@ export class Funcion extends BaseModel<Funcion> {
   })
   status: string; // Estado de la función, por ejemplo: "Programada", "Cancelada", "En curso"
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  isPremiere: boolean; // Indica si la función es un estreno
+
   @HasMany(() => ComprarTaquilla)
   comprasTaquilla: ComprarTaquilla[];
 

@@ -1,5 +1,5 @@
 import { BaseModel } from "@/libraries/BaseModel";
-import { AllowNull, Column, DataType, Table } from "sequelize-typescript";
+import { Column, DataType, Table } from "sequelize-typescript";
 
 @Table({
   tableName: "movie",
@@ -54,4 +54,11 @@ export class Movie extends BaseModel<Movie> {
     allowNull: false,
   })
   external_id: number;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  proximamente: boolean; // Nueva columna
 }

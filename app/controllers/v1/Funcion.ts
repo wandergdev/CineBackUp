@@ -59,17 +59,17 @@ export class FuncionController extends ModelController<Funcion> {
   }
 
   async handleCreate(req: Request, res: Response) {
-    const { movieId, salaId, startTime, category } = req.body;
+    const { movieId, salaId, startTime, isPremiere } = req.body;
 
     const [hours, minutes] = startTime.split(":").map(Number);
-    const startTimeInMinutes = hours * 60 + minutes;
+    const startTimeNumber = hours * 60 + minutes; // Convertir a minutos desde la medianoche
 
     const movie = await Movie.findByPk(movieId);
     if (!movie) {
       return res.status(400).json({ message: "Invalid movie ID" });
     }
 
-    const endTimeInMinutes = startTimeInMinutes + movie.duration;
+    const endTimeNumber = startTimeNumber + movie.duration;
 
     try {
       // Verificar disponibilidad de la sala
@@ -79,24 +79,24 @@ export class FuncionController extends ModelController<Funcion> {
           [Op.or]: [
             {
               startTime: {
-                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
+                [Op.between]: [startTimeNumber, endTimeNumber],
               },
             },
             {
               endTime: {
-                [Op.between]: [startTimeInMinutes, endTimeInMinutes],
+                [Op.between]: [startTimeNumber, endTimeNumber],
               },
             },
             {
               [Op.and]: [
                 {
                   startTime: {
-                    [Op.lte]: startTimeInMinutes,
+                    [Op.lte]: startTimeNumber,
                   },
                 },
                 {
                   endTime: {
-                    [Op.gte]: endTimeInMinutes,
+                    [Op.gte]: endTimeNumber,
                   },
                 },
               ],
@@ -113,8 +113,9 @@ export class FuncionController extends ModelController<Funcion> {
 
       const nuevaFuncion = await Funcion.create({
         ...req.body,
-        startTime: startTimeInMinutes,
-        endTime: endTimeInMinutes,
+        startTime: startTimeNumber,
+        endTime: endTimeNumber,
+        isPremiere, // Asegurarse de que isPremiere se incluya aquí
       });
       res.status(201).send({ data: nuevaFuncion });
     } catch (error) {

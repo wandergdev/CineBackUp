@@ -13,6 +13,7 @@ import morgan from "morgan";
 // import passport from "passport";
 import path from "path";
 import favicon from "serve-favicon";
+import { Movie } from "@/db/models/Movie/model/Movie";
 import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 
@@ -112,8 +113,12 @@ routes(app);
 
 export function setupServer(): Promise<void> {
   return new Promise((resolve, _reject) => {
-    server.listen(config.server.port, () => {
+    server.listen(config.server.port, async () => {
       log.info(`Server started at port ${config.server.port}`);
+
+      // Sincroniza el modelo de Movie para asegurarte de que la columna "proximamente" esté presente
+      await Movie.sync({ alter: true });
+
       resolve();
     });
   });
