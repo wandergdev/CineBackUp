@@ -349,34 +349,22 @@ export class EmailAuthController extends Controller {
       const user = await User.findByPk(decoded.id);
 
       if (!user) {
-        console.log("User not found");
         return res.redirect(
-          `${config.emailAuth.confirmRedirectUrl.replace(
-            "{token}",
-            tk as string,
-          )}&success=false&email=${decoded.email}`,
+          `http://localhost:3000/?success=false&email=${decoded.email}`,
         );
       }
 
       user.isEmailConfirmed = true;
       await user.save();
 
-      console.log("User email confirmed:", user.email);
-
+      // Redirigir a la página principal
       return res.redirect(
-        `${config.emailAuth.confirmRedirectUrl.replace(
-          "{token}",
-          tk as string,
-        )}&success=true&email=${user.email}`,
+        `http://localhost:3000/?success=true&email=${user.email}`,
       );
     } catch (err) {
-      console.log("Error validating token:", err);
       log.error(err);
       return res.redirect(
-        `${config.emailAuth.confirmRedirectUrl.replace(
-          "{token}",
-          tk as string,
-        )}&success=false&email=${req.query.email}`,
+        `http://localhost:3000/?success=false&email=${req.query.email}`,
       );
     }
   }
