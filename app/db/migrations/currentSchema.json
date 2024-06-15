@@ -188,6 +188,14 @@
           "field": "isPremiere",
           "seqType": "Sequelize.BOOLEAN"
         },
+        "isWeekend": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "isWeekend",
+          "seqType": "Sequelize.BOOLEAN"
+        },
         "createdAt": {
           "allowNull": false,
           "field": "createdAt",
@@ -775,5 +783,5 @@
       "indexes": []
     }
   },
-  "revision": "20240612201835"
+  "revision": "20240615102333"
 }

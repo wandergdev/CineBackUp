@@ -76,6 +76,13 @@ export class Funcion extends BaseModel<Funcion> {
   })
   isPremiere: boolean; // Indica si la función es un estreno
 
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  isWeekend: boolean; // Indica si la función es de fin de semana
+
   @HasMany(() => ComprarTaquilla)
   comprasTaquilla: ComprarTaquilla[];
 
