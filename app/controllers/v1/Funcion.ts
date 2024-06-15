@@ -13,9 +13,7 @@ export class FuncionController extends ModelController<Funcion> {
   }
 
   routes(): Router {
-    this.router.get("/", validateJWT("access"), (req, res) =>
-      this.handleFindAllWithMovie(req, res),
-    );
+    this.router.get("/", (req, res) => this.handleFindAllWithMovie(req, res));
     this.router.get("/:id", validateJWT("access"), (req, res) =>
       this.handleFindOneWithMovie(req, res),
     );
