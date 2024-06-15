@@ -25,6 +25,24 @@ export const fetchSingleMovieData = async (movieId: number) => {
   }
 };
 
+export const fetchMovieTrailerKey = async (movieId: number) => {
+  try {
+    const finalUrl = `https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${API_KEY}&language=es-MX`;
+    const response = await axios.get(finalUrl, {
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+      },
+    });
+    const trailer = response.data.results.find(
+      (video: any) => video.type === "Trailer" && video.site === "YouTube",
+    );
+    return trailer ? trailer.key : null;
+  } catch (error) {
+    console.error("Error fetching movie trailer key from API:", error);
+    throw new Error("Error fetching movie trailer key from API");
+  }
+};
+
 export const searchMoviesFromApi = async (query: string) => {
   try {
     const response = await axios.get(API_URL, {
@@ -61,6 +79,7 @@ export const mapMovieToDatabase = async (req: Request, res: Response) => {
     }
 
     const response = await fetchSingleMovieData(movieIdNumber);
+    const trailerKey = await fetchMovieTrailerKey(movieIdNumber);
 
     const alreadyExist = await Movie.findOne({
       where: { external_id: response.id },
@@ -73,7 +92,7 @@ export const mapMovieToDatabase = async (req: Request, res: Response) => {
       });
     }
 
-    function mapToMovie(movieData: any) {
+    function mapToMovie(movieData: any, trailerKey: string | null) {
       return {
         name: movieData.title,
         fecha_lanzamiento: movieData.release_date,
@@ -83,13 +102,28 @@ export const mapMovieToDatabase = async (req: Request, res: Response) => {
         genero: movieData.genres.map((genre: any) => genre.name),
         rating: Math.round(movieData.vote_average),
         external_id: movieData.id,
+        trailer_key: trailerKey, // Almacena la clave del tráiler
       };
     }
 
-    const mappedData = mapToMovie(response);
+    const mappedData = mapToMovie(response, trailerKey);
     const movieCreatedInDB = await Movie.create(mappedData);
 
     return Controller.created(res, movieCreatedInDB);
+  } catch (error) {
+    console.error(error);
+    return Controller.serverError(res, error.message);
+  }
+};
+
+export const getMovieDetails = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const movie = await Movie.findByPk(id);
+    if (!movie) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+    return Controller.ok(res, movie);
   } catch (error) {
     console.error(error);
     return Controller.serverError(res, error.message);

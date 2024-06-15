@@ -57,7 +57,7 @@ export class FuncionController extends ModelController<Funcion> {
   }
 
   async handleCreate(req: Request, res: Response) {
-    const { movieId, salaId, startTime, isPremiere } = req.body;
+    const { movieId, salaId, startTime, isPremiere, isWeekend } = req.body;
 
     const [hours, minutes] = startTime.split(":").map(Number);
     const startTimeNumber = hours * 60 + minutes; // Convertir a minutos desde la medianoche
@@ -114,10 +114,85 @@ export class FuncionController extends ModelController<Funcion> {
         startTime: startTimeNumber,
         endTime: endTimeNumber,
         isPremiere, // Asegurarse de que isPremiere se incluya aquí
+        isWeekend, // Asegurarse de que isWeekend se incluya aquí
       });
       res.status(201).send({ data: nuevaFuncion });
     } catch (error) {
       console.error("Error creating function:", error);
+      res.status(500).send({ error: error.message });
+    }
+  }
+
+  async handleUpdate(req: Request, res: Response) {
+    const { id } = req.params;
+    const { salaId, startTime, isPremiere, isWeekend } = req.body;
+
+    const [hours, minutes] = startTime.split(":").map(Number);
+    const startTimeNumber = hours * 60 + minutes; // Convertir a minutos desde la medianoche
+
+    try {
+      const funcion = await this.model.findByPk(id);
+      if (!funcion) {
+        return res.status(404).json({ message: "Function not found" });
+      }
+
+      const movie = await Movie.findByPk(funcion.movieId);
+      if (!movie) {
+        return res.status(400).json({ message: "Invalid movie ID" });
+      }
+
+      const endTimeNumber = startTimeNumber + movie.duration;
+
+      // Verificar disponibilidad de la sala
+      const conflict = await Funcion.findOne({
+        where: {
+          salaId,
+          id: { [Op.ne]: id }, // Excluir la función actual
+          [Op.or]: [
+            {
+              startTime: {
+                [Op.between]: [startTimeNumber, endTimeNumber],
+              },
+            },
+            {
+              endTime: {
+                [Op.between]: [startTimeNumber, endTimeNumber],
+              },
+            },
+            {
+              [Op.and]: [
+                {
+                  startTime: {
+                    [Op.lte]: startTimeNumber,
+                  },
+                },
+                {
+                  endTime: {
+                    [Op.gte]: endTimeNumber,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      if (conflict) {
+        return res.status(400).json({
+          message: "La sala ya está ocupada en el horario seleccionado",
+        });
+      }
+
+      funcion.salaId = salaId;
+      funcion.startTime = startTimeNumber;
+      funcion.endTime = endTimeNumber;
+      funcion.isPremiere = isPremiere;
+      funcion.isWeekend = isWeekend;
+
+      await funcion.save();
+      res.status(200).send({ data: funcion });
+    } catch (error) {
+      console.error("Error updating function:", error);
       res.status(500).send({ error: error.message });
     }
   }

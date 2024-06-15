@@ -61,4 +61,10 @@ export class Movie extends BaseModel<Movie> {
     defaultValue: false,
   })
   proximamente: boolean; // Nueva columna
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  trailer_key: string; // Clave del tráiler de YouTube
 }

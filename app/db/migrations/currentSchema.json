@@ -309,6 +309,11 @@
           "field": "proximamente",
           "seqType": "Sequelize.BOOLEAN"
         },
+        "trailer_key": {
+          "allowNull": true,
+          "field": "trailer_key",
+          "seqType": "Sequelize.STRING"
+        },
         "createdAt": {
           "allowNull": false,
           "field": "createdAt",
@@ -783,5 +788,5 @@
       "indexes": []
     }
   },
-  "revision": "20240615102333"
+  "revision": "20240615113106"
 }
