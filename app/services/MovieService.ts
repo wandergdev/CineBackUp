@@ -130,7 +130,7 @@ export const getMovieDetails = async (req: Request, res: Response) => {
   }
 };
 
-// Añadida la función fetchUpcomingMovies
+// Función para obtener próximos estrenos para México y República Dominicana
 export const fetchUpcomingMovies = async (req: Request, res: Response) => {
   try {
     const today = new Date();
@@ -139,16 +139,29 @@ export const fetchUpcomingMovies = async (req: Request, res: Response) => {
 
     const formatDate = date => date.toISOString().split("T")[0];
 
-    const finalUrl = `https://api.themoviedb.org/3/movie/upcoming?region=ES&language=es-MX&primary_release_date.gte=${formatDate(
-      today,
-    )}&primary_release_date.lte=${formatDate(nextMonth)}&api_key=${API_KEY}`;
-    const response = await axios.get(finalUrl, {
-      headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
-      },
+    const regions = ["DO", "MX"];
+    const promises = regions.map(region => {
+      const finalUrl = `https://api.themoviedb.org/3/movie/upcoming?region=${region}&language=es-MX&primary_release_date.gte=${formatDate(
+        today,
+      )}&primary_release_date.lte=${formatDate(nextMonth)}&api_key=${API_KEY}`;
+      return axios.get(finalUrl, {
+        headers: {
+          Authorization: `Bearer ${ACCESS_TOKEN}`,
+        },
+      });
     });
 
-    res.status(200).send({ data: response.data.results });
+    const responses = await Promise.all(promises);
+    const combinedResults = responses.flatMap(
+      response => response.data.results,
+    );
+
+    // Eliminar duplicados por id
+    const uniqueResults = combinedResults.filter(
+      (movie, index, self) => index === self.findIndex(m => m.id === movie.id),
+    );
+
+    res.status(200).send({ data: uniqueResults });
   } catch (error) {
     console.error("Error fetching upcoming releases:", error);
     return Controller.serverError(res, error.message);
