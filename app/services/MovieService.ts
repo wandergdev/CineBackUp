@@ -129,3 +129,28 @@ export const getMovieDetails = async (req: Request, res: Response) => {
     return Controller.serverError(res, error.message);
   }
 };
+
+// Añadida la función fetchUpcomingMovies
+export const fetchUpcomingMovies = async (req: Request, res: Response) => {
+  try {
+    const today = new Date();
+    const nextMonth = new Date(today);
+    nextMonth.setMonth(today.getMonth() + 1);
+
+    const formatDate = date => date.toISOString().split("T")[0];
+
+    const finalUrl = `https://api.themoviedb.org/3/movie/upcoming?region=ES&language=es-MX&primary_release_date.gte=${formatDate(
+      today,
+    )}&primary_release_date.lte=${formatDate(nextMonth)}&api_key=${API_KEY}`;
+    const response = await axios.get(finalUrl, {
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+      },
+    });
+
+    res.status(200).send({ data: response.data.results });
+  } catch (error) {
+    console.error("Error fetching upcoming releases:", error);
+    return Controller.serverError(res, error.message);
+  }
+};

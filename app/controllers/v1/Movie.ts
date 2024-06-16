@@ -6,6 +6,7 @@ import {
   getMovieListFromApi,
   mapMovieToDatabase,
   searchMoviesFromApi,
+  fetchUpcomingMovies, // Importar la función fetchUpcomingMovies
 } from "@/services/MovieService";
 import { MovieSchema } from "@/validators/Movie";
 import { Router, Request, Response } from "express";
@@ -37,6 +38,7 @@ export class MovieController extends ModelController<Movie> {
     this.router.get("/movie-poster/", (req, res) =>
       mapMovieToDatabase(req, res),
     );
+    this.router.get("/upcoming", fetchUpcomingMovies); // Añadir la ruta para obtener próximos estrenos
     this.router.get("/:id", validateJWT("access"), (req, res) =>
       this.handleFindOne(req, res),
     );
