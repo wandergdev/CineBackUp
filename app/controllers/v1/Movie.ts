@@ -68,7 +68,7 @@ export class MovieController extends ModelController<Movie> {
           if (!movie) {
             return res.status(404).json({ message: "Movie not found" });
           }
-          movie.proximamente = req.body.proximamente;
+          movie.proximamente = req.body.proximamente; //Está dando error, pero por el momento funciona todo bien.
           await movie.save();
           res.status(200).json({ data: movie });
         } catch (error) {
