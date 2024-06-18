@@ -1,10 +1,12 @@
 import { config } from "@/config";
 import { EmailData } from "@/db/interfaces/Email/Email.interfaces";
+import { User } from "@/db/models/User/model/User";
 import i18n from "@/libraries/i18n";
 import { log } from "@/libraries/Log";
 import ejs from "ejs";
 import nodemailer from "nodemailer";
 import path from "path";
+import QRCode from "qrcode"; // Asegúrate de tener qrcode instalado
 
 class EmailService {
   mailer: nodemailer.Transporter;
@@ -72,6 +74,44 @@ class EmailService {
   }
 
   /**
+   * Genera un código QR basado en los datos proporcionados.
+   * @param data - Datos para codificar en el código QR.
+   * @returns Una promesa con el código QR en formato base64.
+   */
+  async generateQRCode(data: string): Promise<string> {
+    try {
+      return await QRCode.toDataURL(data);
+    } catch (err) {
+      log.error(`Error generating QR code: ${err}`);
+      throw new Error("Error generating QR code");
+    }
+  }
+
+  /**
+   * Envía un correo electrónico con los datos de la compra de taquilla.
+   * @param userId - ID del usuario que realizó la compra.
+   * @param ticketData - Datos del ticket incluyendo función, cantidad de taquillas, tipo de taquilla y QR code.
+   */
+  async sendTicketEmail(userId: number, ticketData: any): Promise<any> {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error("Usuario no encontrado.");
+    }
+
+    const emailData: EmailData = {
+      email: user.email,
+      subject: "Tu compra de taquilla en Cinema Oasis",
+      page: "ticket", // Asegúrate de tener una plantilla EJS llamada ticket.ejs
+      context: {
+        ...ticketData,
+        name: user.name,
+      },
+      locale: "",
+    };
+
+    await this.sendEmail(emailData);
+  }
+  /**
    * Envía un correo electrónico con los datos proporcionados.
    * @param emailData - Datos del correo electrónico (dirección, asunto, plantilla, contexto, adjuntos).
    * @returns Una promesa con el resultado del envío.
@@ -94,6 +134,14 @@ class EmailService {
 
     // Traducir asunto
     emailData.subject = t.__(emailData.subject);
+
+    // Generar el código QR
+    if (emailData.context.ticketId) {
+      const qrCodeData = await this.generateQRCode(
+        `Ticket-${emailData.context.ticketId}`,
+      );
+      emailData.context.qrCode = qrCodeData;
+    }
 
     const html = await this.compileTemplate(emailData.context);
     log.debug(`Sending ${emailData.page} email to: ${emailData.email}`);

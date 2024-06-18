@@ -91,17 +91,18 @@ class AuthService {
   }
 
   public getCredentials(user: any): AuthCredentials {
+    const roles = user.roles.map((role: any) => role.name); // Asegúrate de incluir los nombres de los roles
     const token = this.createToken({
       email: user.email,
       uid_azure: user.uid_azure,
-      role: user.roles,
+      role: roles,
       type: "access",
       userId: user.id,
     });
     const refreshToken = this.createToken({
       email: user.email,
       uid_azure: user.uid_azure,
-      role: user.roles,
+      role: roles,
       type: "refresh",
       userId: user.id,
     });
@@ -115,44 +116,40 @@ class AuthService {
     };
   }
 
-  public getExchangeToken(user: any): string {
-    const token = this.createToken({
-      email: user.email,
-      uid_azure: user.uid_azure,
-      role: user.roles,
-      type: "exchange",
-      userId: user.id,
-    });
-    return token.token;
-  }
-
   public async validateJWT(token: string, type: string): Promise<JWTPayload> {
     let decodedjwt: JWTPayload;
     try {
       decodedjwt = jwt.verify(token, jwtSecret) as JWTPayload;
+      console.log("Decoded JWT:", decodedjwt); // Agrega esto para verificar el JWT
     } catch (err) {
+      console.error("JWT verification failed:", err); // Agrega este log
       throw new Error("Invalid token");
     }
 
     const reqTime = Date.now() / 1000;
     if (decodedjwt.exp <= reqTime) {
+      console.error("JWT token expired:", decodedjwt); // Agrega este log
       throw new Error("Token expired");
     }
 
     if (!_.isUndefined(decodedjwt.nbf) && reqTime <= decodedjwt.nbf) {
+      console.error("JWT token not yet valid:", decodedjwt); // Agrega este log
       throw new Error("This token is early.");
     }
 
     if (config.jwt[type].audience !== decodedjwt.aud) {
+      console.error("JWT audience mismatch:", decodedjwt); // Agrega este log
       throw new Error("This token cannot be accepted for this domain.");
     }
 
     if (config.jwt[type].subject !== decodedjwt.sub) {
+      console.error("JWT subject mismatch:", decodedjwt); // Agrega este log
       throw new Error("This token cannot be used for this request.");
     }
 
     const result = await JWTBlacklist.findOne({ where: { token } });
     if (result != null) {
+      console.error("JWT token is blacklisted:", decodedjwt); // Agrega este log
       throw new Error("This Token is blacklisted.");
     }
 

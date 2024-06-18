@@ -8,7 +8,7 @@ import {
 } from "sequelize-typescript";
 import { BaseModel } from "@/libraries/BaseModel";
 import { User } from "../../User/model/User";
-import { Funcion } from "../../Funcion/model/Funcion"; // Asegúrate de que la importación sea correcta
+import { Funcion } from "../../Funcion/model/Funcion";
 
 @Table({
   tableName: "comprartaquilla",
@@ -44,36 +44,40 @@ export class ComprarTaquilla extends BaseModel<ComprarTaquilla> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
-    defaultValue: 1, //Default is 1 ticket per purchase if not specified
+    defaultValue: 1,
   })
-  cantidadTaquillas: number; // Cantidad de taquillas compradas
+  cantidadTaquillas: number;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  tipoTaquilla: string; //Tipo taquilla, "Regular o VIP".
+  tipoTaquilla: string;
 
   @Column({
     type: DataType.FLOAT,
     allowNull: false,
   })
-  costoTotal: number; // Costo total de la compra
+  costoTotal: number;
 
   @Column({
     type: DataType.DATE,
-    defaultValue: DataType.NOW, //Fecha y hora automática.
+    defaultValue: DataType.NOW,
     allowNull: true,
   })
-  fechaHoraCompra: Date; // Fecha y hora de la compra
+  fechaHoraCompra: Date;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  estadoTransaccion: string; // Estado de la transacción, ej. "Completada", "Cancelada"
+  estadoTransaccion: string;
 
-  //Hook para calcular el costo antes de crear la entrada.
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  qrCode: string; // QR Code generado
 
   @BeforeCreate
   static async calcularCosto(instancia: ComprarTaquilla) {
@@ -83,12 +87,9 @@ export class ComprarTaquilla extends BaseModel<ComprarTaquilla> {
   static setPurchaseTimestamp(instance: ComprarTaquilla): void {
     instance.fechaHoraCompra = new Date();
   }
-  // Método para realizar una compra
   static async realizarCompra(datosCompra: any): Promise<ComprarTaquilla> {
     return await ComprarTaquilla.create(datosCompra);
   }
-
-  // Método para cancelar una compra
   static async cancelarCompra(
     idCompra: number,
   ): Promise<[number, ComprarTaquilla[]]> {

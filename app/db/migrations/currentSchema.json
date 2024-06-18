@@ -65,6 +65,11 @@
           "field": "estadoTransaccion",
           "seqType": "Sequelize.STRING"
         },
+        "qrCode": {
+          "allowNull": true,
+          "field": "qrCode",
+          "seqType": "Sequelize.TEXT"
+        },
         "createdAt": {
           "allowNull": false,
           "field": "createdAt",
@@ -788,5 +793,5 @@
       "indexes": []
     }
   },
-  "revision": "20240615113106"
+  "revision": "20240617004049"
 }

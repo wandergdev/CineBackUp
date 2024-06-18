@@ -50,6 +50,7 @@ export class Sala extends BaseModel<Sala> {
   // Relación uno a muchos con Función
   @HasMany(() => Funcion)
   funciones: Funcion[];
+  tipo: string;
 
   // Método para añadir una sala
   static async addSala(datosSala: any): Promise<Sala> {

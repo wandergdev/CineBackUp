@@ -88,7 +88,32 @@ export class EmailAuthController extends Controller {
       (req, res) => this.resendConfirmEmail(req, res),
     );
 
+    // Nueva ruta para obtener datos del usuario autenticado
+    this.router.get("/user", validateJWT("access"), (req, res) =>
+      this.getUser(req, res),
+    );
+
     return this.router;
+  }
+
+  async getUser(req: Request, res: Response) {
+    try {
+      const user = await User.findOne({
+        where: { id: req.session.jwt.id },
+        include: [
+          { model: Profile, as: "profile" },
+          { model: Role, as: "roles" },
+        ],
+      });
+
+      if (!user) {
+        return Controller.notFound(res, "User not found");
+      }
+
+      return Controller.ok(res, user);
+    } catch (err) {
+      return handleServerError(err, res);
+    }
   }
 
   async login(req: Request, res: Response) {
@@ -218,7 +243,7 @@ export class EmailAuthController extends Controller {
 
   async createPassword(req: Request, res: Response) {
     try {
-      const { email, password } = req.body;
+      const { email } = req.body;
       const userCredentials = await emailResetUserPassword(email);
       return Controller.ok(res, userCredentials);
     } catch (err) {
