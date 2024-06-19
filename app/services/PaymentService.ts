@@ -1,6 +1,6 @@
 import Stripe from "stripe";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2024-04-10", // Usa la versión más reciente recomendada
+  apiVersion: "2024-04-10",
 });
 
 class PaymentService {
@@ -27,7 +27,9 @@ class PaymentService {
     try {
       const paymentIntent = await stripe.paymentIntents.confirm(
         paymentIntentId,
-        { payment_method: paymentMethodId },
+        {
+          payment_method: paymentMethodId,
+        },
       );
       return paymentIntent;
     } catch (error) {
@@ -36,5 +38,4 @@ class PaymentService {
   }
 }
 
-const paymentService = new PaymentService();
-export default paymentService;
+export default new PaymentService();

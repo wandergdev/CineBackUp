@@ -17,6 +17,9 @@ export class FuncionController extends ModelController<Funcion> {
     this.router.get("/:id", validateJWT("access"), (req, res) =>
       this.handleFindOneWithMovie(req, res),
     );
+    this.router.get("/movie/:movieId", (req, res) =>
+      this.handleFindByMovieId(req, res),
+    ); // Nueva ruta para obtener funciones por movieId
     this.router.post("/", validateJWT("access"), (req, res) =>
       this.handleCreate(req, res),
     );
@@ -52,6 +55,22 @@ export class FuncionController extends ModelController<Funcion> {
       res.status(200).send({ data });
     } catch (error) {
       console.error("Error fetching function with movie:", error);
+      res.status(500).send({ error: error.message });
+    }
+  }
+
+  async handleFindByMovieId(req: Request, res: Response) {
+    try {
+      const data = await this.model.findAll({
+        where: { movieId: req.params.movieId },
+        include: [Movie],
+      });
+      if (!data) {
+        return res.status(404).send({ message: "Functions not found" });
+      }
+      res.status(200).send({ data });
+    } catch (error) {
+      console.error("Error fetching functions by movieId:", error);
       res.status(500).send({ error: error.message });
     }
   }

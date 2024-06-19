@@ -18,6 +18,15 @@ export const config = {
     },
   },
 
+  stripe: {
+    secretKey:
+      process.env.STRIPE_SECRET_KEY ||
+      "sk_test_51PSWWOKTvKKZFxxjWCfe9Cz4kL8354ulj6iK8JWkYV12O0YT4EBwIX7p6icNpigutcCURB0APLWFlYpSI3RUcCFV00TLyAKFQd",
+    publishableKey:
+      process.env.STRIPE_PUBLISHABLE_KEY ||
+      "pk_test_51PSWWOKTvKKZFxxj4GPaec7bKRE5hw7I9S1lVrcSstAKZnI8irlGecs2t29ixBD5JJrFzHEJRt6G6lQfZ29aFINV00SzJ5zJPV",
+  },
+
   jwt: {
     secret:
       process.env.JWT_SECRET || "tYw9UcCxYKHjOTzcIJPPgoQJxWc6kH177UuDY0l4Qsw",

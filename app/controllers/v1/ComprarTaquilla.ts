@@ -26,7 +26,6 @@ export class ComprarTaquillaController extends ModelController<
             userId,
             funcionId,
             salaId,
-
             cantidadTaquillas,
             paymentMethodId,
           } = req.body;
