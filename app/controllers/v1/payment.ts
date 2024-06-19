@@ -14,6 +14,11 @@ router.post(
   async (req: Request, res: Response) => {
     const { amount, currency } = req.body;
     try {
+      if (amount < 50) {
+        return res
+          .status(400)
+          .send({ error: "El monto mínimo debe ser 50 centavos en USD." });
+      }
       const paymentIntent = await paymentService.createPaymentIntent(
         amount,
         currency,
@@ -78,6 +83,15 @@ router.post(
         sala.type === "VIP" ? 250 * cantidadTaquillas : 150 * cantidadTaquillas;
       const currency = "dop"; // Moneda local
 
+      // Validación de monto mínimo
+      const amountInUSD = amount / 56.77; // Suponiendo una tasa de conversión de 1 USD = 56.77 DOP
+      if (amountInUSD < 0.5) {
+        return res.status(400).json({
+          message:
+            "El monto mínimo de compra debe ser al menos 50 centavos en USD.",
+        });
+      }
+
       const paymentIntent = await paymentService.createPaymentIntent(
         amount,
         currency,
@@ -117,6 +131,7 @@ router.post(
 
       return res.status(200).json({ data: compra });
     } catch (error) {
+      console.error("Error en la compra:", error);
       return res.status(500).json({ message: error.message });
     }
   },

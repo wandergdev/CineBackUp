@@ -58,6 +58,12 @@ const validateToken = async ({
       throw "Invalid Token";
     }
     log.info("Token valido. Decoded:", decoded);
+
+    // Asegúrate de que session esté inicializado
+    if (!session) {
+      session = {};
+    }
+
     session.jwt = decoded;
     session.jwtstring = token;
     session.user = {
@@ -113,7 +119,7 @@ export function atLeastOneTypeIsInToken(types: Array<string>) {
     validateTypeIsInToken({
       authorization,
       next,
-      session: req.session,
+      session: req.session || {}, // Asegúrate de que req.session esté inicializado
       types,
     }).catch(error => {
       log.error(
@@ -132,7 +138,7 @@ export function validateJWT(type: string) {
     validateToken({
       authorization,
       next,
-      session: req.session,
+      session: req.session || {}, // Asegúrate de que req.session esté inicializado
       type,
     }).catch(error => {
       log.error("Error en la validación del JWT:", error);
@@ -140,6 +146,7 @@ export function validateJWT(type: string) {
     });
   };
 }
+
 export function validateJWTOnQueryString(type: string, key = "token") {
   return (req: Request, res: Response, next: NextFunction) => {
     const token = req.query[key] as string;
@@ -159,6 +166,12 @@ export function validateJWTOnQueryString(type: string, key = "token") {
           return;
         }
         log.info("Token válido en query string. Decoded:", decoded);
+
+        // Asegúrate de que req.session esté inicializado
+        if (!req.session) {
+          req.session = {};
+        }
+
         req.session.jwt = decoded;
         req.session.jwtstring = token;
         req.session.user = {
