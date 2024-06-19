@@ -91,7 +91,7 @@ class AuthService {
   }
 
   public getCredentials(user: any): AuthCredentials {
-    const roles = user.roles.map((role: any) => role.name); // Asegúrate de incluir los nombres de los roles
+    const roles = user.roles ? user.roles.map((role: any) => role.name) : []; // Asegúrate de incluir los nombres de los roles y manejar el caso de roles nulos
     const token = this.createToken({
       email: user.email,
       uid_azure: user.uid_azure,
@@ -112,7 +112,7 @@ class AuthService {
       refresh_token: refreshToken,
       user: _.pick(user, ["id", "name", "email"]),
       profile: user.profile,
-      roles: user.roles,
+      roles: user.roles || [], // Asegúrate de devolver una lista vacía si no hay roles
     };
   }
 

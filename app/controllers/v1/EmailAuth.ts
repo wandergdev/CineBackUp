@@ -93,6 +93,11 @@ export class EmailAuthController extends Controller {
       this.getUser(req, res),
     );
 
+    // Nueva ruta para verificar el token del correo electrónico
+    this.router.post("/verify-email-token", (req, res) =>
+      this.verifyEmailToken(req, res),
+    );
+
     return this.router;
   }
 
@@ -371,7 +376,12 @@ export class EmailAuthController extends Controller {
         "confirmEmail",
       );
       console.log("Decoded token:", decoded);
-      const user = await User.findByPk(decoded.id);
+      const user = await User.findByPk(decoded.id, {
+        include: [
+          { model: Profile, as: "profile" },
+          { model: Role, as: "roles" },
+        ],
+      });
 
       if (!user) {
         return res.redirect(
@@ -382,15 +392,44 @@ export class EmailAuthController extends Controller {
       user.isEmailConfirmed = true;
       await user.save();
 
-      // Redirigir a la página principal
+      // Generar token de acceso después de confirmar el correo
+      const credentials = authService.getCredentials(user);
+
+      // Redirigir a la página principal con el token de acceso en la URL
       return res.redirect(
-        `http://localhost:3000/?success=true&email=${user.email}`,
+        `http://localhost:3000/?success=true&email=${user.email}&token=${credentials.token}`,
       );
     } catch (err) {
       log.error(err);
       return res.redirect(
         `http://localhost:3000/?success=false&email=${req.query.email}`,
       );
+    }
+  }
+
+  async verifyEmailToken(req: Request, res: Response) {
+    const { tk } = req.query;
+
+    try {
+      const decoded = await authService.validateJWT(
+        tk as string,
+        "confirmEmail",
+      );
+      const user = await User.findByPk(decoded.id);
+
+      if (!user) {
+        return Controller.notFound(res, "User not found");
+      }
+
+      user.isEmailConfirmed = true;
+      await user.save();
+
+      const loginCredentials = authService.getCredentials(user);
+
+      return Controller.ok(res, loginCredentials);
+    } catch (err) {
+      log.error(err);
+      return Controller.unauthorized(res, "Invalid or expired token");
     }
   }
 
@@ -540,7 +579,7 @@ export class EmailAuthController extends Controller {
       page: EmailTemplate.EmailConfirm,
       locale: user.profile?.locale ?? "en",
       context: {
-        url: `http://localhost:3000/confirm-email?tk=${token}`, // Ajusta la URL según tu configuración
+        url: `http://localhost:8888/api/v1/emailauth/verify-email-token?tk=${token}`, // Ajusta la URL según tu configuración
         name: name || user.email,
         email: user.email,
       },

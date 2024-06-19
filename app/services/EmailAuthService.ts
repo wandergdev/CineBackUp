@@ -70,6 +70,27 @@ export const sendEmailResetPassword = async ({
   return info;
 };
 
+async function verifyEmailToken(req, res) {
+  const { token } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByPk(decoded.id, {
+      include: [{ model: Role, as: "roles" }],
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.isEmailConfirmed = true;
+    await user.save();
+    const accessToken = generateAccessToken(user); // Genera un nuevo token de acceso
+    res.json({ ...user.toJSON(), token: accessToken });
+  } catch (error) {
+    res.status(400).json({ message: "Invalid token" });
+  }
+}
+
 // Función para restablecer la contraseña del usuario
 export const emailResetUserPassword = async (email: string) => {
   const lowerCaseEmail = email.toLowerCase();
