@@ -7,6 +7,9 @@ import ejs from "ejs";
 import nodemailer from "nodemailer";
 import path from "path";
 import QRCode from "qrcode"; // Asegúrate de tener qrcode instalado
+import fs from "fs";
+import os from "os";
+import { ComprarTaquilla } from "@/db/models/ComprarTaquilla/model/ComprarTaquilla";
 
 class EmailService {
   mailer: nodemailer.Transporter;
@@ -78,9 +81,13 @@ class EmailService {
    * @param data - Datos para codificar en el código QR.
    * @returns Una promesa con el código QR en formato base64.
    */
-  async generateQRCode(data: string): Promise<string> {
+  async generateQRCodeFile(data: string): Promise<string> {
     try {
-      return await QRCode.toDataURL(data);
+      const qrCodeDataUrl = await QRCode.toDataURL(data);
+      const base64Data = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
+      const tempFilePath = path.join(os.tmpdir(), `qrcode-${Date.now()}.png`);
+      await fs.promises.writeFile(tempFilePath, base64Data, "base64");
+      return tempFilePath;
     } catch (err) {
       log.error(`Error generating QR code: ${err}`);
       throw new Error("Error generating QR code");
@@ -92,32 +99,63 @@ class EmailService {
    * @param userId - ID del usuario que realizó la compra.
    * @param ticketData - Datos del ticket incluyendo función, cantidad de taquillas, tipo de taquilla y QR code.
    */
+
   async sendTicketEmail(userId: number, ticketData: any): Promise<any> {
     const user = await User.findByPk(userId);
     if (!user) {
       throw new Error("Usuario no encontrado.");
     }
 
-    // Validar que ticketData tenga los datos necesarios
     if (!ticketData.funcion || !ticketData.funcion.movie || !ticketData.sala) {
       throw new Error("Datos incompletos para el ticket.");
     }
 
-    // Log de ticketData para depuración
     console.log("Datos del ticket:", ticketData);
+
+    const currentDateTime = new Date();
+    const validUntil = new Date(currentDateTime);
+    validUntil.setHours(23, 59, 59, 999); // válido hasta las 11:59:59 PM del día de la compra
+
+    const qrCodeData = `Ticket-${userId}-${ticketData.funcion.id}-${
+      ticketData.cantidadTaquillas
+    }-${currentDateTime.toISOString()}`;
+    const qrCodeFilePath = await this.generateQRCodeFile(qrCodeData);
 
     const emailData: EmailData = {
       email: user.email,
       subject: "Tu compra de taquilla en Cinema Oasis",
-      page: "ticket", // Asegúrate de tener una plantilla EJS llamada ticket.ejs
+      page: "ticket",
       context: {
         ...ticketData,
         name: user.name,
+        validUntil, // pasar la fecha de validez al contexto
       },
+      attachments: [
+        {
+          filename: "qrcode.png",
+          path: qrCodeFilePath,
+          cid: "qrcode@cinemaoasis",
+        },
+      ],
       locale: "",
     };
 
+    // Guardar la compra de taquilla con la validez y el estado de escaneo
+    await ComprarTaquilla.create({
+      userId,
+      funcionId: ticketData.funcion.id,
+      cantidadTaquillas: ticketData.cantidadTaquillas,
+      tipoTaquilla: ticketData.tipoTaquilla,
+      costoTotal: ticketData.costoTotal,
+      fechaHoraCompra: currentDateTime,
+      estadoTransaccion: "Completada",
+      qrCode: qrCodeData,
+      validUntil,
+      scanned: false,
+    });
+
     await this.sendEmail(emailData);
+    await fs.promises.unlink(qrCodeFilePath);
   }
 
   /**
@@ -146,7 +184,7 @@ class EmailService {
 
     // Generar el código QR
     if (emailData.context.ticketId) {
-      const qrCodeData = await this.generateQRCode(
+      const qrCodeData = await this.generateQRCodeFile(
         `Ticket-${emailData.context.ticketId}`,
       );
       emailData.context.qrCode = qrCodeData;

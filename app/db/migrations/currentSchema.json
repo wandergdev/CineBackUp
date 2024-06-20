@@ -70,6 +70,19 @@
           "field": "qrCode",
           "seqType": "Sequelize.TEXT"
         },
+        "scanned": {
+          "allowNull": false,
+          "defaultValue": {
+            "value": false
+          },
+          "field": "scanned",
+          "seqType": "Sequelize.BOOLEAN"
+        },
+        "validUntil": {
+          "allowNull": false,
+          "field": "validUntil",
+          "seqType": "Sequelize.DATE"
+        },
         "createdAt": {
           "allowNull": false,
           "field": "createdAt",
@@ -793,5 +806,5 @@
       "indexes": []
     }
   },
-  "revision": "20240617004049"
+  "revision": "20240620113418"
 }

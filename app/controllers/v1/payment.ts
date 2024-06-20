@@ -157,16 +157,16 @@ router.post(
       }
 
       const qrCodeData = `Ticket-${userId}-${funcionId}-${cantidadTaquillas}-${new Date().toISOString()}`;
-      const qrCode = await emailService.generateQRCode(qrCodeData);
-      log.info("QR Code generated", { qrCodeData });
+      log.info("Generating QR Code", { qrCodeData });
+      const qrCode = await emailService.generateQRCodeFile(qrCodeData);
+      log.info("QR Code generated", { qrCode });
 
-      const compra = await ComprarTaquilla.create({
+      const compra = await ComprarTaquilla.realizarCompra({
         userId,
         funcionId,
         cantidadTaquillas,
         tipoTaquilla,
         costoTotal: amount, // Asegurándonos de guardar el costo total
-        fechaHoraCompra: new Date(),
         estadoTransaccion: "Completada",
         qrCode,
       });
