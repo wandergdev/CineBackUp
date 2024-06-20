@@ -95,7 +95,11 @@ app.set("view engine", "ejs");
 // Configuración de CORS para aceptar solicitudes de tu frontend
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://192.168.100.7:3000"], // URL de tu frontend
+    origin: [
+      "http://localhost:3000",
+      "http://192.168.0.32:3000",
+      "http://192.168.0.28:3000",
+    ], // URL de tu frontend
     credentials: true, // Permitir el envío de cookies y credenciales de autenticación
     methods: ["GET", "PUT", "PATCH", "POST", "DELETE"], // Métodos HTTP permitidos
     allowedHeaders: [
