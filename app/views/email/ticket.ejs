@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Ticket de Cinema Oasis</title>
+  <style>
+    /* ... estilos CSS ... */
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Tu Ticket de Cinema Oasis</h1>
+  </div>
+  <div class="container">
+    <div class="ticket-info">
+      <h2>Detalles del Ticket</h2>
+      <div class="ticket-details">
+        <p><strong>Película:</strong> <%= funcion?.movie?.name || 'Información no disponible' %></p>
+        <p><strong>Sala:</strong> <%= sala?.name || 'Información no disponible' %></p>
+        <p><strong>Horario:</strong> <%= funcion?.startTime || 'Información no disponible' %></p>
+        <p><strong>Cantidad de Taquillas:</strong> <%= cantidadTaquillas || 'Información no disponible' %></p>
+        <p><strong>Tipo de Taquilla:</strong> <%= tipoTaquilla || 'Información no disponible' %></p>
+        <p><strong>Costo Total:</strong> <%= costoTotal ? `${costoTotal} DOP` : 'Información no disponible' %></p>
+        <p><strong>Fecha de Compra:</strong> <%= fechaHoraCompra ? new Date(fechaHoraCompra).toLocaleString("es-ES", { timeZone: "America/Mexico_City" }) : 'Información no disponible' %></p>
+      </div>
+      <div class="qr-code">
+        <p><strong>QR Code:</strong></p>
+        <img src="<%= qrCode || '#' %>" alt="QR Code">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

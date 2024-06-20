@@ -98,6 +98,14 @@ class EmailService {
       throw new Error("Usuario no encontrado.");
     }
 
+    // Validar que ticketData tenga los datos necesarios
+    if (!ticketData.funcion || !ticketData.funcion.movie || !ticketData.sala) {
+      throw new Error("Datos incompletos para el ticket.");
+    }
+
+    // Log de ticketData para depuración
+    console.log("Datos del ticket:", ticketData);
+
     const emailData: EmailData = {
       email: user.email,
       subject: "Tu compra de taquilla en Cinema Oasis",
@@ -111,6 +119,7 @@ class EmailService {
 
     await this.sendEmail(emailData);
   }
+
   /**
    * Envía un correo electrónico con los datos proporcionados.
    * @param emailData - Datos del correo electrónico (dirección, asunto, plantilla, contexto, adjuntos).

@@ -4,6 +4,7 @@ import emailService from "@/services/EmailService";
 import { validateJWT } from "@/policies/General";
 import { Sala } from "@/db/models/Sala/model/Sala";
 import { Funcion } from "@/db/models/Funcion/model/Funcion";
+import { Movie } from "@/db/models/Movie/model/Movie";
 import { ComprarTaquilla } from "@/db/models/ComprarTaquilla/model/ComprarTaquilla";
 import { log } from "@/libraries/Log";
 
@@ -11,7 +12,6 @@ const router = Router();
 
 const MIN_USD_AMOUNT = 0.5; // 50 centavos en USD
 const USD_TO_DOP_CONVERSION_RATE = 59.3;
-const MIN_DOP_AMOUNT = Math.ceil(MIN_USD_AMOUNT * USD_TO_DOP_CONVERSION_RATE); // Redondear hacia arriba para asegurarse de cumplir con el requisito
 
 router.post(
   "/create-payment-intent",
@@ -20,21 +20,23 @@ router.post(
     log.info("Request to create payment intent received", { body: req.body });
     const { amount, currency } = req.body;
     try {
-      if (amount < MIN_DOP_AMOUNT) {
-        log.warn("Amount less than 50 cents in USD", { amount });
+      // Convert amount from DOP to USD cents
+      const amountInUSD = amount / USD_TO_DOP_CONVERSION_RATE;
+      const amountInUSDCents = Math.ceil(amountInUSD * 100);
+
+      if (amountInUSDCents < MIN_USD_AMOUNT * 100) {
+        log.warn("Amount less than 50 cents in USD", {
+          amount,
+          amountInUSDCents,
+        });
         return res.status(400).send({
           error: `El monto mínimo debe ser 50 centavos en USD. ${amount} DOP no cumple con este requisito.`,
         });
       }
 
-      // Convert amount from DOP to USD cents
-      const amountInUSDCents = Math.ceil(
-        (amount / USD_TO_DOP_CONVERSION_RATE) * 100,
-      );
-
       const paymentIntent = await paymentService.createPaymentIntent(
         amountInUSDCents,
-        currency,
+        "usd", // Cambiamos a USD para Stripe
       );
       log.info("Payment intent created successfully", {
         clientSecret: paymentIntent.client_secret,
@@ -92,7 +94,10 @@ router.post(
       }
 
       const funcion = await Funcion.findByPk(funcionId, {
-        include: [Sala],
+        include: [
+          { model: Sala, as: "sala" },
+          { model: Movie, as: "movie" }, // Incluyendo la película
+        ],
       });
 
       if (!funcion) {
@@ -100,8 +105,14 @@ router.post(
         return res.status(404).json({ message: "Función no encontrada." });
       }
 
-      const sala = await Sala.findByPk(salaId);
-      if (!sala) {
+      if (!funcion.movie) {
+        log.warn("Movie not found for function", { funcionId });
+        return res
+          .status(404)
+          .json({ message: "Película no encontrada para la función." });
+      }
+
+      if (!funcion.sala) {
         log.warn("Room not found", { salaId });
         return res.status(404).json({ message: "Sala no encontrada." });
       }
@@ -114,9 +125,10 @@ router.post(
 
       log.info("Calculated amount for tickets", { amount, currency });
 
-      const amountInUSDCents = Math.ceil(
-        (amount / USD_TO_DOP_CONVERSION_RATE) * 100,
-      );
+      // Convert amount from DOP to USD cents
+      const amountInUSD = amount / USD_TO_DOP_CONVERSION_RATE;
+      const amountInUSDCents = Math.ceil(amountInUSD * 100);
+
       if (amountInUSDCents < MIN_USD_AMOUNT * 100) {
         log.warn("Amount less than 50 cents in USD", {
           amount,
@@ -129,7 +141,7 @@ router.post(
 
       const paymentIntent = await paymentService.createPaymentIntent(
         amountInUSDCents,
-        currency,
+        "usd", // Cambiamos a USD para Stripe
       );
       log.info("Payment intent created", { paymentIntentId: paymentIntent.id });
 
@@ -153,7 +165,7 @@ router.post(
         funcionId,
         cantidadTaquillas,
         tipoTaquilla,
-        costoTotal: amount,
+        costoTotal: amount, // Asegurándonos de guardar el costo total
         fechaHoraCompra: new Date(),
         estadoTransaccion: "Completada",
         qrCode,
@@ -162,9 +174,10 @@ router.post(
 
       await emailService.sendTicketEmail(userId, {
         funcion,
-        sala,
+        sala: funcion.sala, // Pasando la sala correcta
         cantidadTaquillas,
         tipoTaquilla,
+        costoTotal: amount, // Pasando el costo total a la plantilla
         qrCode,
         fechaHoraCompra: compra.fechaHoraCompra,
       });
