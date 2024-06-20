@@ -81,12 +81,19 @@ class EmailService {
    * @param data - Datos para codificar en el código QR.
    * @returns Una promesa con el código QR en formato base64.
    */
-  async generateQRCodeFile(data: string): Promise<string> {
+  async generateQRCodeFile(ticketId: string): Promise<string> {
     try {
-      const qrCodeDataUrl = await QRCode.toDataURL(data);
+      const url = `http://192.168.100.7:3000/ticket/${ticketId}`;
+      const qrCodeDataUrl = await QRCode.toDataURL(url);
       const base64Data = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
       const tempFilePath = path.join(os.tmpdir(), `qrcode-${Date.now()}.png`);
       await fs.promises.writeFile(tempFilePath, base64Data, "base64");
+
+      // Verificar que el archivo se haya creado correctamente
+      if (!fs.existsSync(tempFilePath)) {
+        throw new Error("El archivo del QR code no se creó correctamente.");
+      }
+
       return tempFilePath;
     } catch (err) {
       log.error(`Error generating QR code: ${err}`);
@@ -116,10 +123,10 @@ class EmailService {
     const validUntil = new Date(currentDateTime);
     validUntil.setHours(23, 59, 59, 999); // válido hasta las 11:59:59 PM del día de la compra
 
-    const qrCodeData = `Ticket-${userId}-${ticketData.funcion.id}-${
-      ticketData.cantidadTaquillas
+    const ticketId = `Ticket-${userId}-${
+      ticketData.funcion.id
     }-${currentDateTime.toISOString()}`;
-    const qrCodeFilePath = await this.generateQRCodeFile(qrCodeData);
+    const qrCodeFilePath = await this.generateQRCodeFile(ticketId);
 
     const emailData: EmailData = {
       email: user.email,
@@ -149,7 +156,7 @@ class EmailService {
       costoTotal: ticketData.costoTotal,
       fechaHoraCompra: currentDateTime,
       estadoTransaccion: "Completada",
-      qrCode: qrCodeData,
+      qrCode: ticketId,
       validUntil,
       scanned: false,
     });

@@ -1,3 +1,4 @@
+// src/controllers/v1/TicketController.ts
 import { Router, Request, Response } from "express";
 import { ComprarTaquilla } from "@/db/models/ComprarTaquilla/model/ComprarTaquilla";
 import { ModelController } from "@/libraries/ModelController";
