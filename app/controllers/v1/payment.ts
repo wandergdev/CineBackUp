@@ -1,12 +1,12 @@
 import { Router, Request, Response } from "express";
 import paymentService from "@/services/PaymentService";
-import emailService from "@/services/EmailService";
 import { validateJWT } from "@/policies/General";
 import { Sala } from "@/db/models/Sala/model/Sala";
 import { Funcion } from "@/db/models/Funcion/model/Funcion";
 import { Movie } from "@/db/models/Movie/model/Movie";
 import { ComprarTaquilla } from "@/db/models/ComprarTaquilla/model/ComprarTaquilla";
 import { log } from "@/libraries/Log";
+import emailService from "@/services/EmailService";
 
 const router = Router();
 
