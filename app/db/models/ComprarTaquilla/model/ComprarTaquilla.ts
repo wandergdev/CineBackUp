@@ -83,13 +83,17 @@ export class ComprarTaquilla extends BaseModel<ComprarTaquilla> {
   static async calcularCosto(instancia: ComprarTaquilla) {
     const precioBase = instancia.tipoTaquilla === "VIP" ? 250 : 150;
     instancia.costoTotal = precioBase * instancia.cantidadTaquillas;
+    ComprarTaquilla.setPurchaseTimestamp(instancia);
   }
+
   static setPurchaseTimestamp(instance: ComprarTaquilla): void {
     instance.fechaHoraCompra = new Date();
   }
+
   static async realizarCompra(datosCompra: any): Promise<ComprarTaquilla> {
     return await ComprarTaquilla.create(datosCompra);
   }
+
   static async cancelarCompra(
     idCompra: number,
   ): Promise<[number, ComprarTaquilla[]]> {

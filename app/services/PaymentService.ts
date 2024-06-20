@@ -9,6 +9,9 @@ class PaymentService {
     currency: string,
   ): Promise<Stripe.PaymentIntent> {
     try {
+      console.log(
+        `Creating payment intent with amount: ${amount} and currency: ${currency}`,
+      );
       const paymentIntent = await stripe.paymentIntents.create({
         amount,
         currency,
@@ -16,6 +19,7 @@ class PaymentService {
       });
       return paymentIntent;
     } catch (error) {
+      console.error(`Error creating payment intent: ${error.message}`);
       throw new Error(`Error creating payment intent: ${error.message}`);
     }
   }
@@ -33,6 +37,7 @@ class PaymentService {
       );
       return paymentIntent;
     } catch (error) {
+      console.error(`Error confirming payment intent: ${error.message}`);
       throw new Error(`Error confirming payment intent: ${error.message}`);
     }
   }
