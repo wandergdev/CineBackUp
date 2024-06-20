@@ -18,7 +18,7 @@
       <div class="ticket-details">
         <p><strong>Película:</strong> <%= funcion?.movie?.name || 'Información no disponible' %></p>
         <p><strong>Sala:</strong> <%= sala?.name || 'Información no disponible' %></p>
-        <p><strong>Horario:</strong> <%= funcion?.startTime || 'Información no disponible' %></p>
+        <p><strong>Horario:</strong> <%= funcion?.startTime ? new Date(funcion.startTime * 60000).toLocaleTimeString("es-ES", { hour: '2-digit', minute: '2-digit' }) : 'Información no disponible' %></p>
         <p><strong>Cantidad de Taquillas:</strong> <%= cantidadTaquillas || 'Información no disponible' %></p>
         <p><strong>Tipo de Taquilla:</strong> <%= tipoTaquilla || 'Información no disponible' %></p>
         <p><strong>Costo Total:</strong> <%= costoTotal ? `${costoTotal} DOP` : 'Información no disponible' %></p>
