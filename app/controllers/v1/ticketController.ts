@@ -47,8 +47,10 @@ export class TicketController extends ModelController<ComprarTaquilla> {
         compra.scanned = true;
         await compra.save();
 
-        log.info("Datos de la compra:", compra); // Agregar logs para ver los datos
-        return res.status(200).json({ message: "Código QR válido.", compra });
+        log.info("Datos de la compra:", compra.toJSON()); // Añadir logs para ver los datos
+        return res
+          .status(200)
+          .json({ message: "Código QR válido.", compra: compra.toJSON() });
       } catch (error) {
         log.error("Error verificando el código QR", { error });
         return res.status(500).json({ message: error.message });
