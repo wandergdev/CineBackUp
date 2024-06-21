@@ -3,6 +3,7 @@ import { Funcion } from "../../db/models/Funcion/model/Funcion";
 import { Router, Request, Response } from "express";
 import { validateJWT } from "@/policies/General";
 import { Movie } from "../../db/models/Movie/model/Movie";
+import { ComprarTaquilla } from "@/db/models/ComprarTaquilla/model/ComprarTaquilla"; // Importa el modelo CompraTaquilla
 import { Op } from "sequelize";
 
 export class FuncionController extends ModelController<Funcion> {
@@ -213,6 +214,32 @@ export class FuncionController extends ModelController<Funcion> {
     } catch (error) {
       console.error("Error updating function:", error);
       res.status(500).send({ error: error.message });
+    }
+  }
+
+  async handleDelete(req: Request, res: Response): Promise<void> {
+    const { id } = req.params;
+
+    try {
+      const funcion = await this.model.findByPk(id);
+      if (!funcion) {
+        res.status(404).json({ message: "Function not found" });
+        return;
+      }
+
+      // Eliminar las referencias en comprartaquilla
+      await ComprarTaquilla.destroy({
+        where: {
+          funcionId: id,
+        },
+      });
+
+      // Eliminar la función
+      await funcion.destroy();
+      res.status(200).json({ message: "Function deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting function:", error);
+      res.status(500).json({ error: error.message });
     }
   }
 }
