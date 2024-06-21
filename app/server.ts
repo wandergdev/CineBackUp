@@ -97,7 +97,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "http://192.168.100.7:3000",
+      "http://192.168.0.27:3000",
       "http://192.168.0.28:3000",
     ], // URL de tu frontend
     credentials: true, // Permitir el envío de cookies y credenciales de autenticación
