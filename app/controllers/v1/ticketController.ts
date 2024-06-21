@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { ComprarTaquilla } from "@/db/models/ComprarTaquilla/model/ComprarTaquilla";
 import { ModelController } from "@/libraries/ModelController";
 import { log } from "@/libraries/Log";
-import { Funcion } from "@/db/models/Funcion/model/Funcion"; // Asegúrate de importar la relación necesaria
+import { Funcion } from "@/db/models/Funcion/model/Funcion";
 
 export class TicketController extends ModelController<ComprarTaquilla> {
   constructor() {
