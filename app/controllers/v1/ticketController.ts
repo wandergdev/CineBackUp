@@ -3,6 +3,8 @@ import { ComprarTaquilla } from "@/db/models/ComprarTaquilla/model/ComprarTaquil
 import { ModelController } from "@/libraries/ModelController";
 import { log } from "@/libraries/Log";
 import { Funcion } from "@/db/models/Funcion/model/Funcion";
+import { Movie } from "@/db/models/Movie/model/Movie"; // Asegúrate de importar el modelo Movie si no está importado
+import { Sala } from "@/db/models/Sala/model/Sala"; // Asegúrate de importar el modelo Sala si no está importado
 
 export class TicketController extends ModelController<ComprarTaquilla> {
   constructor() {
@@ -23,7 +25,10 @@ export class TicketController extends ModelController<ComprarTaquilla> {
             {
               model: Funcion,
               as: "funcion",
-              include: ["movie", "sala"],
+              include: [
+                { model: Movie, as: "movie" },
+                { model: Sala, as: "sala" },
+              ],
             },
           ],
         });
