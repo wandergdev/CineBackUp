@@ -1,3 +1,4 @@
+// Funcion.ts
 import {
   Table,
   Column,
@@ -28,6 +29,7 @@ export class Funcion extends BaseModel<Funcion> {
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
+    onDelete: "CASCADE", // Asegura la eliminación en cascada
   })
   movieId: number;
 
@@ -36,7 +38,7 @@ export class Funcion extends BaseModel<Funcion> {
     allowNull: true,
     defaultValue: 0,
   })
-  duration: number; // Duración estimada en minutos
+  duration: number;
 
   @BelongsTo(() => Movie)
   movie: Movie;
@@ -55,38 +57,37 @@ export class Funcion extends BaseModel<Funcion> {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  startTime: number; // Hora de inicio en minutos desde medianoche
+  startTime: number;
 
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  endTime: number; // Hora de fin en minutos desde medianoche
+  endTime: number;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  status: string; // Estado de la función, por ejemplo: "Programada", "Cancelada", "En curso"
+  status: string;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   })
-  isPremiere: boolean; // Indica si la función es un estreno
+  isPremiere: boolean;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   })
-  isWeekend: boolean; // Indica si la función es de fin de semana
+  isWeekend: boolean;
 
   @HasMany(() => ComprarTaquilla)
   comprasTaquilla: ComprarTaquilla[];
 
-  // Hook antes de crear una Función
   @BeforeCreate
   @BeforeUpdate
   static async loadDurationHooks(funcion: Funcion) {
@@ -94,7 +95,6 @@ export class Funcion extends BaseModel<Funcion> {
     funcion.calculateEndTime();
   }
 
-  // Método para cargar la duración desde la entidad Movie
   async loadMovieDuration() {
     const movie = await Movie.findByPk(this.movieId);
     if (movie) {
@@ -102,7 +102,6 @@ export class Funcion extends BaseModel<Funcion> {
     }
   }
 
-  // Método para calcular el endTime
   calculateEndTime() {
     this.endTime = this.startTime + this.duration;
   }

@@ -70,6 +70,11 @@
           "field": "qrCode",
           "seqType": "Sequelize.TEXT"
         },
+        "validUntil": {
+          "allowNull": false,
+          "field": "validUntil",
+          "seqType": "Sequelize.DATE"
+        },
         "scanned": {
           "allowNull": false,
           "defaultValue": {
@@ -77,11 +82,6 @@
           },
           "field": "scanned",
           "seqType": "Sequelize.BOOLEAN"
-        },
-        "validUntil": {
-          "allowNull": false,
-          "field": "validUntil",
-          "seqType": "Sequelize.DATE"
         },
         "createdAt": {
           "allowNull": false,
@@ -153,13 +153,13 @@
         },
         "movieId": {
           "allowNull": false,
+          "onDelete": "CASCADE",
           "field": "movieId",
           "name": "movieId",
           "references": {
             "model": "movie",
             "key": "id"
           },
-          "onDelete": "NO ACTION",
           "onUpdate": "CASCADE",
           "seqType": "Sequelize.INTEGER"
         },
@@ -806,5 +806,5 @@
       "indexes": []
     }
   },
-  "revision": "20240620113418"
+  "revision": "20240625144544"
 }

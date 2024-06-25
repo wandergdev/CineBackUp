@@ -1,5 +1,7 @@
+// Movie.ts
 import { BaseModel } from "@/libraries/BaseModel";
-import { Column, DataType, Table } from "sequelize-typescript";
+import { Column, DataType, Table, HasMany } from "sequelize-typescript";
+import { Funcion } from "../../Funcion/model/Funcion";
 
 @Table({
   tableName: "movie",
@@ -60,11 +62,14 @@ export class Movie extends BaseModel<Movie> {
     allowNull: false,
     defaultValue: false,
   })
-  proximamente: boolean; // Nueva columna
+  proximamente: boolean;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  trailer_key: string; // Clave del tráiler de YouTube
+  trailer_key: string;
+
+  @HasMany(() => Funcion, { onDelete: "CASCADE" }) // Asegura la eliminación en cascada
+  funciones: Funcion[];
 }
