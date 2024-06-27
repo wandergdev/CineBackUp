@@ -83,7 +83,7 @@ class EmailService {
    */
   async generateQRCodeFile(ticketId: string): Promise<string> {
     try {
-      const url = `http://192.168.100.7:3000/ticket/${ticketId}`;
+      const url = `http://192.168.2.235:3000/ticket/${ticketId}`;
       const qrCodeDataUrl = await QRCode.toDataURL(url);
       const base64Data = qrCodeDataUrl.replace(/^data:image\/png;base64,/, "");
       const tempFilePath = path.join(os.tmpdir(), `qrcode-${Date.now()}.png`);
